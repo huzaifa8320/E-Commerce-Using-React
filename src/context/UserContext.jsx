@@ -13,7 +13,6 @@ function UserContextProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user);
         setUser({
           isLogin: true,
           userInfo: user
