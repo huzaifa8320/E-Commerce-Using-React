@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from "firebase/auth";
 import { auth, db } from "../utils/firebase";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,26 +21,13 @@ function Login() {
         eye ? setEye(false) : setEye(true)
     }
     useEffect(() => {
-        const fetchData = async () => {
-            if (user.isLogin) {
-                console.log('User is logged in:', user.userInfo.uid);
-    
-                const docRef = doc(db, "User Data", user.userInfo.uid);
-                const docSnap = await getDoc(docRef);
-    
-                if (docSnap.exists()) {
-                    console.log("Document data:", docSnap.data());
-                    navigate('/')
-                } else {
-                    console.log("No such document!");
-                }
-            } else {
-                console.log('User is not logged in');
+        const unsubscribe = onAuthStateChanged(auth, (user_real) => {
+            if (user_real) {
+                navigate("/");
             }
-        };
-    
-        fetchData();
-    }, [user]);
+        });
+        return () => unsubscribe(); 
+    }, [navigate]);
     
 
     // Sign up with email 

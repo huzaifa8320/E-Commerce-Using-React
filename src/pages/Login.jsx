@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, db } from "../utils/firebase";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -20,43 +20,23 @@ function Login() {
         eye ? setEye(false) : setEye(true)
     }
     useEffect(() => {
-        const fetchData = async () => {
-            if (user.isLogin) {
-                console.log('User is logged in:', user.userInfo.uid);
-
-                const docRef = doc(db, "User Data", user.userInfo.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    console.log("Document data:", docSnap.data());
-                    navigate('/')
-                } else {
-                    console.log("No such document!");
-                }
-            } else {
-                console.log('User is not logged in');
+        const unsubscribe = onAuthStateChanged(auth, (user_real) => {
+            if (user_real) {
+                navigate("/");
             }
-        };
-
-        fetchData();
-    }, [user]);
+        });
+        return () => unsubscribe(); 
+    }, [navigate]);
 
     // Email login 
     const login_with_Email = () => {
         signInWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {
-                // Signed in 
                 const user = userCredential.user;
-                console.log(user);
-
-                // ...
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                console.log(errorCode);
-                console.log(errorMessage);
-
             });
     }
 
@@ -70,7 +50,6 @@ function Login() {
                 const credential = GoogleAuthProvider.credentialFromResult(result);
                 const token = credential.accessToken;
                 const user = result.user;
-                console.log(user);
                 const data = doc(db, 'User Data', user.uid);
                await setDoc(data, {
                     id: user.uid,
@@ -82,8 +61,6 @@ function Login() {
                 const errorMessage = error.message;
                 const email = error.customData.email;
                 const credential = GoogleAuthProvider.credentialFromError(error);
-                console.log(errorCode);
-                console.log(errorMessage);
             });
 
     }

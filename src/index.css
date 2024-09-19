@@ -52,3 +52,21 @@
 .image-bright {
   filter: brightness(100%);
 }
+
+
+/* Alert changes  */
+.alert.show {
+  animation: show_slide 1s ease forwards;
+}
+
+@keyframes show_slide {
+  0% {
+    transform: translateX(100%); 
+  }
+  50% {
+    transform: translateX(-5%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

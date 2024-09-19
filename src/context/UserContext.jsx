@@ -1,6 +1,7 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
-import { auth } from "../utils/firebase";
+import { auth, db } from "../utils/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 export const UserContext = createContext()
 
@@ -13,10 +14,15 @@ function UserContextProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser({
-          isLogin: true,
-          userInfo: user
+
+        const unsub = onSnapshot(doc(db, "User Data", user.uid), (doc) => {
+          setUser({
+            isLogin: true,
+            userInfo: doc.data()
+          });
         });
+
+
       }
       else {
         setUser({

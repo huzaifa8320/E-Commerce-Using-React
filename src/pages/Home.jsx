@@ -7,6 +7,8 @@ import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
 import { getAuth, signOut } from "firebase/auth";
 import logo from "../assets/logo.png"
+import defaultProfile from "../assets/defaultProfile.png";
+
 
 function Home() {
     const auth = getAuth();
@@ -19,16 +21,6 @@ function Home() {
     const [loading, setLoading] = useState(true);
     const { user, setUser } = useContext(UserContext)
 
-    useEffect(() => {
-        if (user.isLogin) {
-            console.log('user is login');
-            console.log("userInfo" , user.userInfo);
-        }
-        else {
-            console.log('user is not log');
-
-        }
-    }, [user]);
 
 
     const toggleDropdown = () => {
@@ -40,7 +32,6 @@ function Home() {
     const handleSignOut = () => {
         signOut(auth).then(() => {
             console.log(
-
                 "Sign-out successful."
             );
         }).catch((error) => {
@@ -48,7 +39,6 @@ function Home() {
 
                 error
             );
-            // An error happened.
         });
     };
 
@@ -153,7 +143,7 @@ function Home() {
                             {
                                 user.isLogin ?
                                     <div>
-                                        <img onClick={openProfileDetails} src={user.userInfo.photoURL ? user.userInfo.photoURL : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkaDhD2hapPSdsJ-9gO5TyuQ7KC3OlW2cx4A&s"} alt="" className="h-14 w-14 rounded-full ms-6 me-5 border-2 shadown_default hover:scale-110 cursor-pointer duration-300" />
+                                        <img onClick={openProfileDetails} src={user.userInfo.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-6 me-5 border-2 shadown_default hover:scale-110 cursor-pointer duration-300" />
                                         {signOpen && (
                                             <div className="absolute top-20 right-3 w-[150px] ">
                                                 <div className="bg-white shadow-2xl rounded-md text-[#6D28D9] font-semibold cursor-pointer border-2 ">
