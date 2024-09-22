@@ -3,11 +3,12 @@ import ProductCard from "../components/ProductCard";
 import Category from "../components/Category";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faL, faRotateRight, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faCartPlus, faCartShopping, faL, faRotateRight, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
 import { getAuth, signOut } from "firebase/auth";
 import logo from "../assets/logo.png"
 import defaultProfile from "../assets/defaultProfile.png";
+import { CartContext } from "../context/CartContext";
 
 
 function Home() {
@@ -20,6 +21,9 @@ function Home() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const { user, setUser } = useContext(UserContext)
+    const { cartItems } = useContext(CartContext)
+    console.log(cartItems);
+
     const [data_Limit, setData_Limit] = useState(30);
     const [data_Skip, setData_Skip] = useState(0);
     const [data_Total, setData_Total] = useState(0);
@@ -30,12 +34,12 @@ function Home() {
         const scrollData = () => {
             if (Math.ceil(window.innerHeight + document.documentElement.scrollTop) == document.documentElement.offsetHeight) {
                 if (data_Limit < data_Total) {
-                    setData_Limit(data_Limit + 20)    
-                }   
+                    setData_Limit(data_Limit + 20)
+                }
             }
         };
         window.addEventListener('scroll', scrollData)
-    }, [data_Limit , data_Loading])
+    }, [data_Limit, data_Loading])
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -81,7 +85,7 @@ function Home() {
                 console.error('Error', error);
                 setLoading(false);
             });
-    }, [choosenCategory , data_Limit]);
+    }, [choosenCategory, data_Limit]);
 
     const filteredProducts = products.filter(product =>
         product.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -96,7 +100,7 @@ function Home() {
         setMenuOpen(!menuOpen);
         setIsOpen(false)
     };
-    
+
 
     return (
         <div className="main">
@@ -117,7 +121,7 @@ function Home() {
                     </button>
 
 
-                    <div className="relative md:hidden">
+                    <div className="relative md:hidden border border-red-950">
                         {
                             user.isLogin ?
                                 <div>
@@ -185,7 +189,16 @@ function Home() {
                                 ))}
                             </div>
                         )}
-                        <div className="relative">
+                        <div className="relative flex items-center">
+                            {
+                                user.isLogin &&
+                                <div className="relative">
+                                    {cartItems.length > 0 ?
+                                        <div className="absolute -top-2 right-1 bg-red-700 text-white h-4 w-4 rounded-full text-center font-semibold text-xs">{cartItems.length}</div> : ''
+                                    }
+                                    <Link to={'/cart'}><FontAwesomeIcon icon={faCartPlus} className="cursor-pointer mx-3 text-3xl text-white" /></Link>
+                                </div>
+                            }
                             {
                                 user.isLogin ?
                                     <div>
@@ -219,8 +232,9 @@ function Home() {
                                 className="outline-none ps-2 mx-auto rounded-md font-bold text-gray-800 placeholder-[#6D28D9]"
                                 placeholder="Search"
                                 value={searchTerm}
-                                onChange={(e) => {setSearchTerm(e.target.value)
-                                    
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value)
+
                                 }}
                             />
                         </div>
@@ -286,8 +300,8 @@ function Home() {
                         )}
                     </div>
                 )}
-                {data_Loading && 
-                              <FontAwesomeIcon className="mx-auto block my-10 text-5xl text-[#6D28D9]" icon={faRotateRight} spin />
+                {data_Loading &&
+                    <FontAwesomeIcon className="mx-auto block my-10 text-5xl text-[#6D28D9]" icon={faRotateRight} spin />
 
                 }
             </div>
