@@ -136,35 +136,35 @@ function Profile() {
 
                         }
 
-                        <div className="bg-white px-3 rounded-2xl h-[450px] w-80 shadow_default_Profile">
+                        <div className="bg-white max-[400px]:bg-[#6D28D9] max-[400px]:w-full max-[400px]:h-screen max-[400px]:rounded-none max-[400px]:text-white  px-3 rounded-2xl h-[450px] w-80 shadow_default_Profile">
                             <div className="relative flex justify-center items-center">
                                 <button className="absolute top-3 text-xl left-2" onClick={(go_to_home) => navigate("/")}><FontAwesomeIcon icon={faXmark} /></button>
                                 <img
                                     src={details.img_user ? details.img_user : defaultProfile}
                                     alt=""
-                                    className={`shadow_default_Profile ${percentUpload >= 0 && percentUpload < 100 ? 'image-dark' : 'image-bright'} cursor-pointer h-32 my-5 w-32 rounded-full mx-auto object-contain`}
+                                    className={`shadow_default_Profile bg-[#6D28D9] max-[400px]:bg-white ${percentUpload >= 0 && percentUpload < 100 ? 'image-dark' : 'image-bright'} cursor-pointer h-32 my-5 w-32 rounded-full mx-auto object-contain`}
                                     onClick={() => document.getElementById('fileInput').click()}
                                 />
                                 <p className={`text-white font-bold absolute ${percentUpload > 99 ? "hidden" : "block"}`}>{percentUpload ? `${percentUpload.slice(0, 3)}%` : ""}</p>
                             </div>
                             <input accept="image/*" type="file" className="hidden" id="fileInput" onChange={handleFileChange} />
                             <p className="flex font-semibold my-3">
-                                Name: <input type="text" readOnly={read} ref={inputRef} onChange={(e) => setUsername_update(e.target.value)} value={username_update} placeholder="Add Username" className="w-full ms-3 outline-none" />
+                                Name: <input type="text" readOnly={read} ref={inputRef} onChange={(e) => setUsername_update(e.target.value)} value={username_update} placeholder="Add Username" className="w-full max-[400px]:bg-[#6D28D9] ms-3 outline-none" />
                                 <button><FontAwesomeIcon icon={faPen} className="px-2" onClick={handleEditClick} /></button>
                             </p>
                             <p className="flex font-semibold">Email:
-                                <input type="email" readOnly defaultValue={details.email_user.length > 23 ? `${details.email_user.slice(0, 23)}...` : `${details.email_user}`} className="w-full ms-4 outline-none" placeholder="Add Email" />
+                                <input type="email" readOnly defaultValue={details.email_user.length > 23 ? `${details.email_user.slice(0, 23)}...` : `${details.email_user}`} className="max-[400px]:bg-[#6D28D9] w-full ms-4 outline-none" placeholder="Add Email" />
                             </p>
                             {username_update != details.username ? (
                                 <div className="my-10 flex justify-center">
 
-                                    <button className="bg-[#6D28D9] w-32 h-12 rounded-lg me-3 text-white font-semibold p-3" onClick={save_changes}>Save Changes</button>
-                                    <button className="bg-[#6D28D9] w-32 h-12 rounded-lg text-white font-semibold p-3" onClick={reverse_changes}>Cancel</button>
+                                    <button className="bg-[#6D28D9] w-32 h-12 rounded-lg me-3 text-white font-semibold p-3 max-[400px]:bg-white max-[400px]:text-[#6D28D9]" onClick={save_changes}>Save Changes</button>
+                                    <button className="bg-[#6D28D9] w-32 h-12 rounded-lg text-white font-semibold p-3 max-[400px]:bg-white max-[400px]:text-[#6D28D9]" onClick={reverse_changes}>Cancel</button>
                                 </div>
                             ) : ""}
                             <div className="flex justify-center items-center mt-10">
                                 <button onClick={signOut_handle}
-                                    className="mx-auto bg-[#6D28D9] w-32 h-12 rounded-lg text-white font-semibold p-3 hover:bg-[#5b22b3] transition-colors duration-300">
+                                    className="max-[400px]:bg-white max-[400px]:text-[#6D28D9] mx-auto bg-[#6D28D9] w-32 h-12 rounded-lg text-white font-semibold p-3 hover:bg-[#5b22b3] transition-colors duration-300">
                                     Sign Out
                                 </button>
                             </div>

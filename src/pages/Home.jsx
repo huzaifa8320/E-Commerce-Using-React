@@ -77,13 +77,15 @@ function Home() {
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
+        setIsOpen(false)
     };
 
     return (
         <div className="main">
+            {/* Navbar Desktop  */}
             <nav className="bg-[#6D28D9] shadow-md px-3 lg:px-5 py-3 rounded-b w-full fixed">
                 <div className="flex items-center">
-                    <a href="#" className="logo flex items-center me-auto">
+                    <a href="#" className="logo hidden md:flex items-center me-auto">
                         <div className="h-16 w-16">
                             <img src={logo} alt="logo" />
                         </div>
@@ -92,9 +94,35 @@ function Home() {
                             <p className='text-white font-semibold mb-0'>Your Own Store</p>
                         </div>
                     </a>
-                    <button onClick={toggleMenu} className="px-3 text-white text-2xl md:hidden focus:outline-none">
+                    <button onClick={toggleMenu} className="px-3 me-auto text-white text-2xl md:hidden focus:outline-none">
                         {menuOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
                     </button>
+
+
+                    <div className="relative md:hidden">
+                        {
+                            user.isLogin ?
+                                <div>
+                                    <img onClick={openProfileDetails} src={user.userInfo.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-6 me-2 border-2 shadown_default cursor-pointer" />
+                                    {signOpen && (
+                                        <div className="absolute top-20 right-3 w-[150px] ">
+                                            <div className="bg-white shadow-2xl rounded-md text-[#6D28D9] font-semibold cursor-pointer border-2 ">
+                                                <Link to={"/profile"} className="block rounded-t text-center p-3 border-b-2 hover:bg-purple-500 hover:text-white">Your Profile</Link>
+                                                <div className="rounded-b justify-center flex hover:bg-purple-500 hover:text-white">
+                                                    <button className="p-3" onClick={handleSignOut}>Sign out</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                    }
+                                </div> :
+
+                                <Link to="/Login"
+                                    className="mx-auto my-2 md:mx-0 h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">Login</Link>
+                        }
+                    </div>
+
+
                     <div id="menu" className="h-10 hidden md:flex justify-center me-auto">
                         <input
                             type="text"
@@ -122,7 +150,7 @@ function Home() {
                                 <Category
                                     onClick={() => {
                                         setChoosenCategory("All")
-                                        setIsOpen(false)
+                                        setIsOpen(false)                                        
                                     }}
                                     isChoosen={choosenCategory === "All"}
                                     category={{ slug: "All", name: "All" }} />
@@ -164,7 +192,7 @@ function Home() {
                     </div>
                 </div>
 
-                {/* Mobile nav with transition */}
+                {/* Navbar Mobile  */}
                 <div className={`md:hidden overflow-hidden transition-all duration-500 ${menuOpen ? 'max-h-96' : 'max-h-0'}`}>
                     <div className="p-4 bg-[#6D28D9]">
                         <div className="flex justify-center me-auto h-10 mb-5">
@@ -177,7 +205,7 @@ function Home() {
                             />
                         </div>
 
-                        <div className="flex items-center justify-center mb-5">
+                        <div className="flex items-center justify-center">
                             <button
                                 className="w-36 cursor-pointer bg-white text-[#6D28D9] font-semibold p-2 mx-7 rounded-md focus:outline-none"
                                 onClick={toggleDropdown}
@@ -195,6 +223,8 @@ function Home() {
                                         onClick={() => {
                                             setChoosenCategory("All")
                                             setIsOpen(false)
+                                            setMenuOpen(!menuOpen);
+
                                         }}
                                         isChoosen={choosenCategory === "All"}
                                         category={{ slug: "All", name: "All" }} />
@@ -203,6 +233,7 @@ function Home() {
                                             onClick={() => {
                                                 setChoosenCategory(cat.slug)
                                                 setIsOpen(false)
+                                                setMenuOpen(!menuOpen);
                                             }}
                                             isChoosen={cat.slug === choosenCategory}
                                             category={cat}
@@ -212,10 +243,6 @@ function Home() {
                                 </div>
                             )}
                         </div>
-
-                        <Link to="/login" className="mx-auto h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">
-                            Login
-                        </Link>
                     </div>
                 </div>
             </nav>

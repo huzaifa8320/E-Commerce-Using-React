@@ -66,8 +66,8 @@ function Login() {
     }
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gradient-to-r from-[#6c28d9d2] to-[#6D28D9]">
-            <div className="w-[420px]  rounded-2xl bg-white shadown_default_login h-[500px] px-8">
+        <div className="flex justify-center sm:items-center overflow-auto h-screen bg-gradient-to-r from-[#6c28d9d2] to-[#6D28D9]">
+            <div className="w-[420px]  rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[500px] px-8">
                 <div className="flex relative">
                     <Link to={"/"} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></Link>
                     <h1 className="text-3xl text-center font-bold mt-6 mb-3 mx-auto">Login</h1>
@@ -84,19 +84,19 @@ function Login() {
                     </div>
                 </form>
                 <div>
-                    <button className="mx-auto block text-[#722FDA] font-semibold mb-4">Forget Password?</button>
+                    <button className="mx-auto block max-[400px]:text-white text-[#722FDA] font-semibold mb-4">Forget Password?</button>
                 </div>
                 <div className="flex flex-col gap-2">
-                    <button className="bg-[#7331DA] text-white p-3 font-semibold rounded-lg" onClick={login_with_Email}>Login</button>
-                    <p className="text-[#808080] font-semibold text-center my-3">Don't have an account?
-                        <Link to='/Signup' className="text-[#6c28d9d2] ms-1">Signup</Link>
+                    <button className="bg-[#7331DA] max-[400px]:bg-white max-[400px]:text-[#6D28D9] text-white p-3 font-semibold rounded-lg" onClick={login_with_Email}>Login</button>
+                    <p className="text-[#808080] font-semibold text-center my-3 max-[400px]:text-white">Don't have an account?
+                        <Link to='/Signup' className="text-[#6c28d9d2] ms-1 max-[400px]:text-white underline">Signup</Link>
                     </p>
                     <div className="flex relative justify-center items-center">
                         <p className="border border-[#C7C7C7] w-full absolute"></p>
-                        <p className="bg-white px-2 text-xl z-0 text-[#808080] font-semibold">or</p>
+                        <p className="bg-white px-2 text-xl z-0 text-[#808080] max-[400px]:bg-[#6D28D9] max-[400px]:text-white mb-1  font-semibold">or</p>
                     </div>
-                    <button className="bg-[#F3F4F6] text-[#808080] font-semibold p-3 rounded-lg my-3 flex items-center" onClick={handleSignInWithGoogle}>
-                        <img src={googleLogo} alt="img" className="absolute w-10 h-10" />
+                    <button className="bg-[#F3F4F6] relative text-[#808080] font-semibold p-3 rounded-lg my-3 flex items-center" onClick={handleSignInWithGoogle}>
+                        <img src={googleLogo} alt="img" className="absolute w-10 max-[400px]:w-8 max-[400px]:h-8 h-10" />
                         <p className="mx-auto">Continue With Google</p>
                     </button>
                 </div>
