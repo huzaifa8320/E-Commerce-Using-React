@@ -136,9 +136,9 @@ function Profile() {
 
                         }
 
-                        <div className="bg-white max-[400px]:bg-[#6D28D9] max-[400px]:w-full max-[400px]:h-screen max-[400px]:rounded-none max-[400px]:text-white  px-3 rounded-2xl h-[450px] w-80 shadow_default_Profile">
+                        <div className="bg-white max-[400px]:bg-[#6D28D9] max-[400px]:pt-4 max-[400px]:w-full max-[400px]:h-screen max-[400px]:rounded-none max-[400px]:text-white  px-3 rounded-2xl h-[450px] w-80 shadow_default_Profile">
                             <div className="relative flex justify-center items-center">
-                                <button className="absolute top-3 text-xl left-2" onClick={(go_to_home) => navigate("/")}><FontAwesomeIcon icon={faXmark} /></button>
+                                <button className="absolute top-3 text-xl left-2" onClick={() => navigate("/")}><FontAwesomeIcon icon={faXmark} /></button>
                                 <img
                                     src={details.img_user ? details.img_user : defaultProfile}
                                     alt=""
@@ -149,7 +149,7 @@ function Profile() {
                             </div>
                             <input accept="image/*" type="file" className="hidden" id="fileInput" onChange={handleFileChange} />
                             <p className="flex font-semibold my-3">
-                                Name: <input type="text" readOnly={read} ref={inputRef} onChange={(e) => setUsername_update(e.target.value)} value={username_update} placeholder="Add Username" className="w-full max-[400px]:bg-[#6D28D9] ms-3 outline-none" />
+                                Name: <input type="text" readOnly={read} ref={inputRef} onChange={(e) => setUsername_update(e.target.value)} value={username_update} placeholder="Add Username" className={`w-full max-[400px]:bg-[#6D28D9] ms-3 outline-none  ${read? "cursor-default" : "cursor-text"}`} />
                                 <button><FontAwesomeIcon icon={faPen} className="px-2" onClick={handleEditClick} /></button>
                             </p>
                             <p className="flex font-semibold">Email:

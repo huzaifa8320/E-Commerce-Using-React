@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged,
 import { auth, db } from "../utils/firebase";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCircleExclamation, faEye, faEyeSlash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import googleLogo from '../assets/google_logo.png';
 import { setDoc, doc, getDoc } from "firebase/firestore";
 
@@ -15,6 +15,8 @@ function Login() {
     const [pass, setPass] = useState('')
     const [eye, setEye] = useState(true)
     const { user, setUser } = useContext(UserContext)
+    const [error_Alert_Text, setError_Alert_Text] = useState("")
+
     const navigate = useNavigate()
 
     const showEye = () => {
@@ -53,7 +55,19 @@ function Login() {
                 const errorMessage = error.message;
                 console.log(errorCode);
                 console.log(errorMessage);
+                if (errorCode === 'auth/invalid-email') {
+                    setError_Alert_Text("Please Enter a valid Email");
+                }
+               else if (errorCode === 'auth/missing-password') {
+                    setError_Alert_Text("Please Enter Password");
+                }
+               else if (errorCode === 'auth/weak-password') {
+                    setError_Alert_Text("Password At least 6 word");
+                }
 
+                setTimeout(() => {
+                    setError_Alert_Text('')
+                }, 3000);
                 // ..
             });
     }
@@ -87,10 +101,22 @@ function Login() {
             });
 
     }
+    const closeWarningAlert = () => {
+        setError_Alert_Text('')
+    }
 
     return (
         <div className="flex justify-center sm:items-center overflow-auto h-screen bg-gradient-to-r from-[#6c28d9d2] to-[#6D28D9]">
-            <div className="w-[420px]  rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[550px] px-8">
+            {/* Changes alert Error  */}
+            {error_Alert_Text &&
+                <div className="z-10 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
+                    <span className="text-[#DA7F0B]"><FontAwesomeIcon icon={faCircleExclamation} /></span>
+                    <span className="px-3 msg text-[#BE9049] font-semibold">{error_Alert_Text}</span>
+                    <span onClick={closeWarningAlert} className="text-[#DA7F0B]"><FontAwesomeIcon icon={faXmark} /></span>
+                </div>
+
+            }
+            <div className="w-[420px]  rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[550px] max-[400px]:h-screen px-8">
                 <div className="flex relative">
                     <Link to={"/"} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></Link>
                     <h1 className="text-3xl text-center font-bold mt-6 mb-3 mx-auto">Sign up</h1>

@@ -4,7 +4,7 @@ import { GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, sig
 import { auth, db } from "../utils/firebase";
 import { UserContext } from "../context/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCircleExclamation, faEye, faEyeSlash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import googleLogo from '../assets/google_logo.png';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -13,6 +13,7 @@ function Login() {
     const [email, setEmail] = useState('')
     const [pass, setPass] = useState()
     const [eye, setEye] = useState(true)
+    const [error_Alert_Text, setError_Alert_Text] = useState("")
     const { user, setUser } = useContext(UserContext)
     const navigate = useNavigate()
 
@@ -25,7 +26,7 @@ function Login() {
                 navigate("/");
             }
         });
-        return () => unsubscribe(); 
+        return () => unsubscribe();
     }, [navigate]);
 
     // Email login 
@@ -33,10 +34,30 @@ function Login() {
         signInWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {
                 const user = userCredential.user;
+                console.log(user);
+                
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
+                console.log(errorCode);
+                console.log(errorMessage);
+                if (errorCode === 'auth/invalid-email') {
+                    setError_Alert_Text("Please Enter a valid Email");
+                }
+                else if (errorCode === 'auth/missing-password') {
+                    setError_Alert_Text("Please Enter Password");
+                }
+                else if (errorCode === 'auth/invalid-credential') {
+                    setError_Alert_Text("User Not Found Signup Now.");
+                }
+                else if (errorCode === 'auth/network-request-failed') {
+                    setError_Alert_Text("Network Error");
+                }
+                setTimeout(() => {
+                    setError_Alert_Text('')
+                }, 3000);
+                
             });
     }
 
@@ -51,7 +72,7 @@ function Login() {
                 const token = credential.accessToken;
                 const user = result.user;
                 const data = doc(db, 'User Data', user.uid);
-               await setDoc(data, {
+                await setDoc(data, {
                     id: user.uid,
                     email_user: user.email,
                 }, { merge: true });
@@ -65,8 +86,22 @@ function Login() {
 
     }
 
+    const closeWarningAlert = () => {
+        console.log("Okay");
+setError_Alert_Text('')
+    }
+
     return (
         <div className="flex justify-center sm:items-center overflow-auto h-screen bg-gradient-to-r from-[#6c28d9d2] to-[#6D28D9]">
+            {/* Changes alert Error  */}
+            {error_Alert_Text &&
+                <div className="z-10 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
+                    <span className="text-[#DA7F0B]"><FontAwesomeIcon icon={faCircleExclamation} /></span>
+                    <span className="px-3 msg text-[#BE9049] font-semibold">{error_Alert_Text}</span>
+                    <span onClick={closeWarningAlert} className="text-[#DA7F0B]"><FontAwesomeIcon icon={faXmark} /></span>
+                </div>
+
+            }
             <div className="w-[420px]  rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[500px] max-[400px]:h-screen px-8">
                 <div className="flex relative">
                     <Link to={"/"} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></Link>

@@ -3,7 +3,7 @@ import ProductCard from "../components/ProductCard";
 import Category from "../components/Category";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faL, faRotateRight, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
 import { getAuth, signOut } from "firebase/auth";
 import logo from "../assets/logo.png"
@@ -20,8 +20,22 @@ function Home() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const { user, setUser } = useContext(UserContext)
+    const [data_Limit, setData_Limit] = useState(30);
+    const [data_Skip, setData_Skip] = useState(0);
+    const [data_Total, setData_Total] = useState(0);
+    const [data_Loading, setData_Loading] = useState(false);
 
-
+    // Scroll data 
+    useEffect(() => {
+        const scrollData = () => {
+            if (Math.ceil(window.innerHeight + document.documentElement.scrollTop) == document.documentElement.offsetHeight) {
+                if (data_Limit < data_Total) {
+                    setData_Limit(data_Limit + 20)    
+                }   
+            }
+        };
+        window.addEventListener('scroll', scrollData)
+    }, [data_Limit , data_Loading])
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -50,21 +64,24 @@ function Home() {
     }, []);
 
     useEffect(() => {
+        setData_Loading(true)
         const url = choosenCategory === "All"
-            ? 'https://dummyjson.com/products'
+            ? `https://dummyjson.com/products?limit=${data_Limit}&skip=${data_Skip}`
             : `https://dummyjson.com/products/category/${choosenCategory}`;
 
         fetch(url)
             .then(res => res.json())
             .then(data => {
                 setProducts(data.products);
+                setData_Total(data.total)
                 setLoading(false);
+                setData_Loading(false)
             })
             .catch(error => {
                 console.error('Error', error);
                 setLoading(false);
             });
-    }, [choosenCategory]);
+    }, [choosenCategory , data_Limit]);
 
     const filteredProducts = products.filter(product =>
         product.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -79,6 +96,7 @@ function Home() {
         setMenuOpen(!menuOpen);
         setIsOpen(false)
     };
+    
 
     return (
         <div className="main">
@@ -150,7 +168,7 @@ function Home() {
                                 <Category
                                     onClick={() => {
                                         setChoosenCategory("All")
-                                        setIsOpen(false)                                        
+                                        setIsOpen(false)
                                     }}
                                     isChoosen={choosenCategory === "All"}
                                     category={{ slug: "All", name: "All" }} />
@@ -201,7 +219,9 @@ function Home() {
                                 className="outline-none ps-2 mx-auto rounded-md font-bold text-gray-800 placeholder-[#6D28D9]"
                                 placeholder="Search"
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onChange={(e) => {setSearchTerm(e.target.value)
+                                    
+                                }}
                             />
                         </div>
 
@@ -248,13 +268,15 @@ function Home() {
             </nav>
 
 
+
+            {/* Product  */}
             <div className="container px-5 pt-36 mx-auto">
                 {loading ? (
                     <div className="bg-[#6D28D9] w-full h-screen fixed top-0 left-0 flex justify-center items-center">
                         <div className="loader"></div>
                     </div>
                 ) : (
-                    <div className="flex flex-wrap -m-4">
+                    <div className="flex flex-wrap">
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map((item) => (
                                 <ProductCard item={item} key={item.id} />
@@ -264,6 +286,10 @@ function Home() {
                         )}
                     </div>
                 )}
+                {data_Loading && 
+                              <FontAwesomeIcon className="mx-auto block my-10 text-5xl text-[#6D28D9]" icon={faRotateRight} spin />
+
+                }
             </div>
         </div>
     );
