@@ -67,7 +67,7 @@ function Login() {
 
     return (
         <div className="flex justify-center sm:items-center overflow-auto h-screen bg-gradient-to-r from-[#6c28d9d2] to-[#6D28D9]">
-            <div className="w-[420px]  rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[500px] px-8">
+            <div className="w-[420px]  rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[500px] max-[400px]:h-screen px-8">
                 <div className="flex relative">
                     <Link to={"/"} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></Link>
                     <h1 className="text-3xl text-center font-bold mt-6 mb-3 mx-auto">Login</h1>
