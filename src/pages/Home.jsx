@@ -22,7 +22,6 @@ function Home() {
     const [loading, setLoading] = useState(true);
     const { user, setUser } = useContext(UserContext)
     const { cartItems } = useContext(CartContext)
-    console.log(cartItems);
 
     const [data_Limit, setData_Limit] = useState(30);
     const [data_Skip, setData_Skip] = useState(0);
@@ -121,11 +120,20 @@ function Home() {
                     </button>
 
 
-                    <div className="relative md:hidden border border-red-950">
+                    <div className="relative flex items-center md:hidden">
+                    {
+                                user.isLogin &&
+                                <div className="relative">
+                                    {cartItems.length ?
+                                        <div className="absolute -top-2 -right-2 bg-red-700 text-white h-4 w-4 rounded-full text-center font-semibold text-xs">{cartItems.length}</div> : ''
+                                    }
+                                    <Link to={'/cart'}><FontAwesomeIcon icon={faCartPlus} className="cursor-pointer text-3xl text-white" /></Link>
+                                </div>
+                            }
                         {
                             user.isLogin ?
                                 <div>
-                                    <img onClick={openProfileDetails} src={user.userInfo.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-6 me-2 border-2 shadown_default cursor-pointer" />
+                                    <img onClick={openProfileDetails} src={user?.userInfo?.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-4 me-2 border-2 shadown_default cursor-pointer" />
                                     {signOpen && (
                                         <div className="absolute top-20 right-3 w-[150px] ">
                                             <div className="bg-white shadow-2xl rounded-md text-[#6D28D9] font-semibold cursor-pointer border-2 ">
@@ -193,7 +201,7 @@ function Home() {
                             {
                                 user.isLogin &&
                                 <div className="relative">
-                                    {cartItems.length > 0 ?
+                                    {cartItems.length ?
                                         <div className="absolute -top-2 right-1 bg-red-700 text-white h-4 w-4 rounded-full text-center font-semibold text-xs">{cartItems.length}</div> : ''
                                     }
                                     <Link to={'/cart'}><FontAwesomeIcon icon={faCartPlus} className="cursor-pointer mx-3 text-3xl text-white" /></Link>
@@ -286,7 +294,7 @@ function Home() {
             {/* Product  */}
             <div className="container px-5 pt-36 mx-auto">
                 {loading ? (
-                    <div className="bg-[#6D28D9] w-full h-screen fixed top-0 left-0 flex justify-center items-center">
+                    <div className="bg-[#6D28D9] z-10 w-full h-screen fixed top-0 left-0 flex justify-center items-center">
                         <div className="loader"></div>
                     </div>
                 ) : (

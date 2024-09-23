@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { CartContext } from "../context/CartContext";
 
 function ProductDetails() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
+    const { cartItems, addItem , isItemAdded} = useContext(CartContext)
+    console.log(cartItems);
 
     useEffect(() => {
         setNotFound(false);
@@ -32,12 +35,12 @@ function ProductDetails() {
 
     if (loading) {
 
-    return <div className="bg-[#6D28D9] w-full h-screen fixed top-0 left-0 flex justify-center items-center">
-        <div className="loader"></div>
-    </div>
+        return <div className="bg-[#6D28D9] w-full h-screen fixed top-0 left-0 flex justify-center items-center">
+            <div className="loader"></div>
+        </div>
     }
-    if (notFound){
-     return <h1 className="text-center text-5xl my-52 font-semibold text-[#6D28D9]">Not Found 🚫</h1>;
+    if (notFound) {
+        return <h1 className="text-center text-5xl my-52 font-semibold text-[#6D28D9]">Not Found 🚫</h1>;
     }
 
     if (!product) return null;
@@ -154,8 +157,8 @@ function ProductDetails() {
                             <span className="title-font font-medium text-2xl text-gray-900">
                                 ${product.price}
                             </span>
-                            <button className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
-                                Add To Cart
+                            <button onClick={() => addItem(product)} className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
+                               {isItemAdded(product.id)? `Added ${isItemAdded(product.id).quantities}` : `Add to Cart`}
                             </button>
                             <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
                                 <svg

@@ -14,8 +14,8 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <CartContextProvider>
           <UserContextProvider>
+        <CartContextProvider>
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/login' element={<Login />} />
@@ -24,8 +24,8 @@ function App() {
               <Route path='/cart' element={<Cart />} />
               <Route path='/productdetails/:id' element={<ProductDetails />} />
             </Routes>
-          </UserContextProvider>
         </CartContextProvider>
+          </UserContextProvider>
       </BrowserRouter>
     </>
   )
