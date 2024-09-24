@@ -27,12 +27,12 @@ function Profile() {
             if (user_real) {
                 console.log("User Is Login");
             }
-            else{
-                
+            else {
+
                 navigate("/");
             }
         });
-        return () => unsubscribe(); 
+        return () => unsubscribe();
     }, [navigate]);
 
 
@@ -149,7 +149,7 @@ function Profile() {
                             </div>
                             <input accept="image/*" type="file" className="hidden" id="fileInput" onChange={handleFileChange} />
                             <p className="flex font-semibold my-3">
-                                Name: <input type="text" readOnly={read} ref={inputRef} onChange={(e) => setUsername_update(e.target.value)} value={username_update} placeholder="Add Username" className={`w-full max-[400px]:bg-[#6D28D9] ms-3 outline-none  ${read? "cursor-default" : "cursor-text"}`} />
+                                Name: <input type="text" readOnly={read} ref={inputRef} onChange={(e) => setUsername_update(e.target.value)} value={username_update} placeholder="Add Username" className={`w-full max-[400px]:bg-[#6D28D9] ms-3 outline-none  ${read ? "cursor-default" : "cursor-text"}`} />
                                 <button><FontAwesomeIcon icon={faPen} className="px-2" onClick={handleEditClick} /></button>
                             </p>
                             <p className="flex font-semibold">Email:

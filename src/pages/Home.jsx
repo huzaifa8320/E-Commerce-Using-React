@@ -5,14 +5,15 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faCartPlus, faCartShopping, faL, faRotateRight, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
-import { getAuth, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import logo from "../assets/logo.png"
 import defaultProfile from "../assets/defaultProfile.png";
 import { CartContext } from "../context/CartContext";
+import { auth, db } from "../utils/firebase";
+import { onSnapshot } from "firebase/firestore";
 
 
 function Home() {
-    const auth = getAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [signOpen, setSignOpen] = useState(false);
     const [category, setCategory] = useState([]);
@@ -20,6 +21,7 @@ function Home() {
     const [searchTerm, setSearchTerm] = useState("");
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userLoading, setUserLoading] = useState(true);
     const { user, setUser } = useContext(UserContext)
     const { cartItems } = useContext(CartContext)
 
@@ -27,6 +29,22 @@ function Home() {
     const [data_Skip, setData_Skip] = useState(0);
     const [data_Total, setData_Total] = useState(0);
     const [data_Loading, setData_Loading] = useState(false);
+
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user_real) => {
+            if (user_real && user.isLogin) {
+                console.log('User log');                
+                setUserLoading(false)
+            }
+            else if(!user_real){
+                localStorage.removeItem('cartItems')
+                console.log('not log');
+                setUserLoading(false)
+            }
+        });
+        return () => unsubscribe();
+    }, [user]);
 
     // Scroll data 
     useEffect(() => {
@@ -210,7 +228,7 @@ function Home() {
                             {
                                 user.isLogin ?
                                     <div>
-                                        <img onClick={openProfileDetails} src={user.userInfo.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-6 me-5 border-2 shadown_default hover:scale-110 cursor-pointer duration-300" />
+                                        <img onClick={openProfileDetails} src={user?.userInfo?.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-6 me-5 border-2 shadown_default hover:scale-110 cursor-pointer duration-300" />
                                         {signOpen && (
                                             <div className="absolute top-20 right-3 w-[150px] ">
                                                 <div className="bg-white shadow-2xl rounded-md text-[#6D28D9] font-semibold cursor-pointer border-2 ">
@@ -293,7 +311,7 @@ function Home() {
 
             {/* Product  */}
             <div className="container px-5 pt-36 mx-auto">
-                {loading ? (
+                {loading || userLoading ? (
                     <div className="bg-[#6D28D9] z-10 w-full h-screen fixed top-0 left-0 flex justify-center items-center">
                         <div className="loader"></div>
                     </div>

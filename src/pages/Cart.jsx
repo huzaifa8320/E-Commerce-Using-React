@@ -16,7 +16,7 @@ function Cart() {
          {/* PlaceOrder */}
          {showPop &&
             <div className="z-10 w-full flex justify-center items-center fixed top-0 right-0 h-screen bg-[#00000015]">
-               <div className="bg-[#7525C7] px-8 rounded-lg w-[420px] h-[500px] text-white">
+               <div className="bg-purple-700 max-[400px]:w-full max-[400px]:h-screen shadow-2xl px-8 rounded-lg w-[420px] h-[500px] text-white">
                   <div className="flex relative">
                      <button onClick={() => setShowPop(false)} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></button>
                      <h1 className="text-3xl text-center font-bold mt-6 mb-3 mx-auto">Orders</h1>
@@ -32,15 +32,16 @@ function Cart() {
                </div>
             </div>
          }
-         <h1 className="text-center text-4xl my-8 font-semibold">Cart Details</h1>
-         <div className="flex">
+         <h1 className="text-center text-4xl my-8 py-4 font-semibold bg-[#6D28D9] text-white">Cart Details</h1>
+         
+         {cartItems.length > 0 && <div className="flex">
             <div>
                <h1 className="font-semibold">Total Price: ${Math.floor(total_Ammount)}</h1>
                <h1 className="font-semibold">Total Quantity: {total_Quantities}</h1>
             </div>
             <button className="ms-auto bg-[#6D28D9] p-3 rounded-lg text-white font-semibold" onClick={() => setShowPop(true)}>Place Order</button>
-         </div>
-         {
+         </div>}
+         {cartItems.length > 0?
             cartItems.map((data) =>
                <div key={data.id} className="sm:flex my-4 h-auto border">
                   <div className="border-r flex min-w-36 justify-center">
@@ -58,7 +59,7 @@ function Cart() {
                      </div>
                   </div>
                </div>
-            )
+            ): <div className="flex justify-center items-center h-52 text-4xl font-semibold">No items ☹</div>
          }
       </div>
 
