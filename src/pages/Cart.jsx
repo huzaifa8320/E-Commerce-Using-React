@@ -3,6 +3,8 @@ import { CartContext } from "../context/CartContext";
 import { faCircleExclamation, faL, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UserContext } from "../context/UserContext";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../utils/firebase";
 
 function Cart() {
    const { cartItems, removeItem, addItem, item_minus } = useContext(CartContext)
@@ -21,8 +23,8 @@ function Cart() {
       }
    }, [user]);
 
-   // Alert 
-   const send_details = () => {
+   // Place Order
+   const send_details = async () => {
       if (!details_Name) {
          setError_Alert_Text('Please Enter Name')
       }
@@ -33,21 +35,16 @@ function Cart() {
          setError_Alert_Text('Please Enter Address')
       }
       else {
-         const data_order = {
-            name: details_Name,
-            email: details_Email,
-            address: details_Address,
-            item: cartItems
-         }
          let cartDetails = cartItems
             .map((item, index) => `*Item ${index + 1}*: ${item.title} - ${item.quantities} x ( $${item.price} )`)
-            .join('%0a');
+            .join('%0a%0a');
 
-         let url_to_send = `https://wa.me/+923135909715?text=*Name*: ${details_Name}%0a*Email*: ${details_Email}%0a%0a*Order Items*:%0a${cartDetails}`;
+         let url_to_send = `https://wa.me/+923135909715?text=*Name*: ${details_Name}%0a*Email*: ${details_Email}%0a%0a*Order Items*:%0a${cartDetails}%0a%0a*Total Price*: $${total_Ammount}%0a*Total Item*: ${total_Quantities}%0a%0a*Address*: ${details_Address}`;
 
          window.open(url_to_send)
-         console.log(data_order);
-
+         const data = doc(db, 'User Data', user?.userInfo?.id);
+         setShowPop(false)
+         localStorage.removeItem('cartItems')
       }
 
       setTimeout(() => {
@@ -58,7 +55,7 @@ function Cart() {
       setError_Alert_Text('')
    }
 
-   // Alert end
+   // Place Order end
 
    return (
       <div className="sm:mx-10 m-4">
@@ -85,7 +82,7 @@ function Cart() {
                      <input onChange={(e) => setDetails_Name(e.target.value)} type="text" autoComplete="name" placeholder="Name" className="text-[#00000095] bg-transparent outline-none font-semibold  w-full placeholder:text-[#00000095]" />
                   </div>
                   <div className="bg-[#F3F1F5] my-5 rounded-lg h-10 ps-3 flex items-center">
-                     <input onChange={(e) => setDetails_Email(e.target.value)} readOnly value={user?.userInfo?.email_user} type="email" autoComplete="email" placeholder="Email" className="text-[#00000095] bg-transparent outline-none font-semibold  w-full placeholder:text-[#00000095]" />
+                     <input onChange={(e) => setDetails_Email(e.target.value)} defaultValue={user?.userInfo?.email_user || ''} type="email" autoComplete="email" placeholder="Email" className="text-[#00000095] bg-transparent outline-none font-semibold  w-full placeholder:text-[#00000095]" />
                   </div>
                   <textarea onChange={(e) => setDetails_Address(e.target.value)} name="" id="" className="w-full h-52 p-3 outline-none placeholder:text-[#00000095] text-[#00000095] font-semibold" placeholder="Address"></textarea>
                   <button onClick={send_details} className="bg-white text-[#6D28D9] font-semibold p-2 rounded-lg w-20 mx-auto block my-3">Save</button>
