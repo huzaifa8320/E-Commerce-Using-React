@@ -40,7 +40,7 @@ function Profile() {
         const fetchData = async () => {
             if (user.isLogin) {
                 setDetails(user.userInfo);
-                setUsername_update(user.userInfo.username)
+                setUsername_update(user?.userInfo?.username)
                 setLoading(false);
             }
         };
@@ -140,7 +140,7 @@ function Profile() {
                             <div className="relative flex justify-center items-center">
                                 <button className="absolute top-3 text-xl left-2" onClick={() => navigate("/")}><FontAwesomeIcon icon={faXmark} /></button>
                                 <img
-                                    src={details.img_user ? details.img_user : defaultProfile}
+                                    src={details?.img_user ? details?.img_user : defaultProfile}
                                     alt=""
                                     className={`shadow_default_Profile bg-[#6D28D9] max-[400px]:bg-white ${percentUpload >= 0 && percentUpload < 100 ? 'image-dark' : 'image-bright'} cursor-pointer h-32 my-5 w-32 rounded-full mx-auto object-contain`}
                                     onClick={() => document.getElementById('fileInput').click()}
@@ -153,9 +153,9 @@ function Profile() {
                                 <button><FontAwesomeIcon icon={faPen} className="px-2" onClick={handleEditClick} /></button>
                             </p>
                             <p className="flex font-semibold">Email:
-                                <input type="email" readOnly defaultValue={details.email_user.length > 23 ? `${details.email_user.slice(0, 23)}...` : `${details.email_user}`} className="max-[400px]:bg-[#6D28D9] w-full ms-4 outline-none" placeholder="Add Email" />
+                                <input type="email" readOnly defaultValue={details?.email_user?.length > 23 ? `${details?.email_user?.slice(0, 23)}...` : `${details?.email_user}`} className="max-[400px]:bg-[#6D28D9] w-full ms-4 outline-none" placeholder="Add Email" />
                             </p>
-                            {username_update != details.username ? (
+                            {username_update != details?.username ? (
                                 <div className="my-10 flex justify-center">
 
                                     <button className="bg-[#6D28D9] w-32 h-12 rounded-lg me-3 text-white font-semibold p-3 max-[400px]:bg-white max-[400px]:text-[#6D28D9]" onClick={save_changes}>Save Changes</button>

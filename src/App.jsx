@@ -8,14 +8,15 @@ import Profile from './pages/Profile'
 import UserContextProvider from './context/UserContext'
 import Cart from './pages/Cart'
 import CartContextProvider from './context/CartContext'
+import Admin from './pages/Admin'
 
 function App() {
 
   return (
     <>
       <BrowserRouter>
-          <UserContextProvider>
-        <CartContextProvider>
+        <UserContextProvider>
+          <CartContextProvider>
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/login' element={<Login />} />
@@ -23,9 +24,11 @@ function App() {
               <Route path='/profile' element={<Profile />} />
               <Route path='/cart' element={<Cart />} />
               <Route path='/productdetails/:id' element={<ProductDetails />} />
+              <Route path='/admin' element={<Admin/>} />
+              <Route path='/admin/:item' element={<Admin/>} />
             </Routes>
-        </CartContextProvider>
-          </UserContextProvider>
+          </CartContextProvider>
+        </UserContextProvider>
       </BrowserRouter>
     </>
   )

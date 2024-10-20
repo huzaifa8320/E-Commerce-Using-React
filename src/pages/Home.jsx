@@ -3,7 +3,7 @@ import ProductCard from "../components/ProductCard";
 import Category from "../components/Category";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faCartPlus, faCartShopping, faL, faRotateRight, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faCartPlus, faCartShopping, faL, faRotateRight, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import logo from "../assets/logo.png"
@@ -327,7 +327,7 @@ function Home() {
                     </div>
                 )}
                 {data_Loading &&
-                    <FontAwesomeIcon className="mx-auto block my-10 text-5xl text-[#6D28D9]" icon={faRotateRight} spin />
+                    <FontAwesomeIcon className="mx-auto block my-10 text-5xl text-[#6D28D9]" icon={faSpinner} spinPulse />
 
                 }
             </div>
