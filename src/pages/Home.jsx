@@ -24,6 +24,7 @@ function Home() {
     const [all_products, setAll_Products] = useState([]);
     const [chooseCategory, setChooseCategory] = useState('All');
     // Updated Data 
+console.log(user);
 
     // Get all Products 
     useEffect(() => {
@@ -63,9 +64,9 @@ function Home() {
                 setUserLoading(false)
             }
             else if (!user_real) {
+                setUserLoading(false)
                 localStorage.removeItem('cartItems')
                 console.log('not log');
-                setUserLoading(false)
             }
         });
         return () => unsubscribe();

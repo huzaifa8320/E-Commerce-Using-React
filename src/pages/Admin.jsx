@@ -10,6 +10,7 @@ import { addDoc, collection, deleteDoc, doc, onSnapshot } from "firebase/firesto
 import CategoryButton from "../components/CategoryButton";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Image } from "antd";
+import { Firestore } from "firebase/firestore"; 
 
 
 
@@ -30,6 +31,7 @@ function Admin() {
     const [all_products, setAll_Products] = useState(null)
     const [all_Orders, setAll_Orders] = useState(null)
     const [show_menu, setShow_Menu] = useState(null)
+    // const [allItems, setAllItems] = useState([]);
 
     const options = ['Option 1', 'Option 2', 'Option 3'];
 
@@ -44,32 +46,32 @@ function Admin() {
         }
     }, [item, navigate]);
 
-// Show Product menu 
-const handleMenuToggle = (productId) => {
-    if (show_menu === productId) {
-        setShow_Menu(null); 
-    } else {
-        setShow_Menu(productId); 
-    }
-};
+    // Show Product menu 
+    const handleMenuToggle = (productId) => {
+        if (show_menu === productId) {
+            setShow_Menu(null);
+        } else {
+            setShow_Menu(productId);
+        }
+    };
 
 
-// Delete Product from db 
-const deleteProduct =async(id)=>{
-    try {
-        const productDocRef = doc(db, "Products", id);
-        await deleteDoc(productDocRef);
-        setText_Success_Alert('Delete Successfully ✅')
-    } 
-    catch (error) {
-        console.error("Error deleting product: ", error);
-        setError_Alert_Text('Something went Wrong ⚠')
+    // Delete Product from db 
+    const deleteProduct = async (id) => {
+        try {
+            const productDocRef = doc(db, "Products", id);
+            await deleteDoc(productDocRef);
+            setText_Success_Alert('Delete Successfully ✅')
+        }
+        catch (error) {
+            console.error("Error deleting product: ", error);
+            setError_Alert_Text('Something went Wrong ⚠')
+        }
+        setTimeout(() => {
+            setText_Success_Alert(null)
+            setError_Alert_Text(null)
+        }, 2000);
     }
-    setTimeout(() => {
-        setText_Success_Alert(null)
-        setError_Alert_Text(null)
-    }, 2000);
-}
 
 
     // Get all Products 
@@ -93,26 +95,25 @@ const deleteProduct =async(id)=>{
 
     }, [item])
 
-        // Get all Orders 
-        useEffect(() => {
-            const ordersCollectionRef = collection(db, 'Orders');
+    // Get all Orders 
+
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, 'Orders'), (snapshot) => {
+          const all_order = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+        setAll_Orders(all_order)
+         
+        });
     
-            const unsubscribe = onSnapshot(ordersCollectionRef, (snapshot) => {
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+      }, [item]);
     
-                if (!snapshot.empty) {
-                    const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    console.log('Orders data:', orders);
-                    setAll_Orders(orders)
-                } else {
-                    console.log('No Orders found in the collection.');
-                    setAll_Orders(null)
-                }
-    
-            }, (error) => {
-                console.error('Error fetching orders:', error);
-            });
-    
-        }, [item])
+
+console.log(all_Orders);
 
 
     // Image show locally 
@@ -275,7 +276,7 @@ const deleteProduct =async(id)=>{
             {/* Main Bar  */}
             <div className="w-full flex flex-col max-h-screen overflow-y-auto">
                 {/* Show All Products  */}
-                <h1 className="text-3xl font-medium text-center p-4 mb-5 mx- bg-[#214162] text-white border">{item == 'products' ? 'Products' : 'Order'}</h1>
+                <h1 className="text-3xl font-medium text-center p-4 mb-5 mx- bg-[#214162] text-white border-s">{item == 'products' ? 'Products' : 'Order'}</h1>
                 {item == 'products' &&
                     <div className="">
                         <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
@@ -288,17 +289,17 @@ const deleteProduct =async(id)=>{
                                         <div className="m-3 flex flex-col gap-2 relative">
 
                                             <p className="text-xs tracking-widest text-gray-500">{item.category.toUpperCase()}</p>
-                                            <p className="font-medium text-lg">{item.title.length > 20 ? item.title.slice(0, 1).toUpperCase() + item.title.slice(1,19) + '...' : item.title}</p>
+                                            <p className="font-medium text-lg">{item.title.length > 20 ? item.title.slice(0, 1).toUpperCase() + item.title.slice(1, 19) + '...' : item.title}</p>
                                             <p className="h-14">{item.discription.length > 43 ? item.discription.slice(0, 43) + '...' : item.discription}</p>
                                             <p>${item.price}</p>
                                             <button className="absolute right-0 bottom-0">
-                                                <FontAwesomeIcon icon={faEllipsis} onClick={()=>handleMenuToggle(item.id)}/>
+                                                <FontAwesomeIcon icon={faEllipsis} onClick={() => handleMenuToggle(item.id)} />
                                                 {show_menu === item.id &&
-                                                <div className="absolute h-[70px] z-50 w-[86px] flex flex-col justify-evenly right-full  shadow bg-[#214162] text-white font-medium rounded-md">
-                                                    <button onClick={()=>deleteProduct(item.id)} className="hover:bg-white hover:text-[#214162] mx-1">Delete</button>
-                                                    <button className="hover:bg-white hover:text-[#214162] mx-1">Edit</button>
-                                                </div>
-}
+                                                    <div className="absolute h-[70px] z-50 w-[86px] flex flex-col justify-evenly right-full  shadow bg-[#214162] text-white font-medium rounded-md">
+                                                        <button onClick={() => deleteProduct(item.id)} className="hover:bg-white hover:text-[#214162] mx-1">Delete</button>
+                                                        <button className="hover:bg-white hover:text-[#214162] mx-1">Edit</button>
+                                                    </div>
+                                                }
                                             </button>
                                         </div>
                                     </div> // Render a Card for each product
@@ -312,7 +313,7 @@ const deleteProduct =async(id)=>{
                     </div>
                 }
                 {item == 'orders' &&
-                <p>Order</p>
+                    <p>Order</p>
                 }
 
                 {/* Pop Up add product  */}

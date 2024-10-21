@@ -18,6 +18,8 @@ function ProductDetails() {
 
 
     // Updated data 
+
+    // Get Product 
     useEffect(() => {
         const fetchProduct = async () => {
             try {

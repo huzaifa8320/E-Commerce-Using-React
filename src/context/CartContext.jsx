@@ -33,8 +33,7 @@ function CartContextProvider({ children }) {
         if (itemIndex == -1) {
             arr.push({
                 ...item,
-                quantities: 1,
-                fullFilled : 'pending'
+                quantities: 1
             })
         }
         else {

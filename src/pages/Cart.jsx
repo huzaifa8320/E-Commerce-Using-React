@@ -9,7 +9,7 @@ import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 
 function Cart() {
-   const { cartItems,setCartItems, removeItem, addItem, item_minus } = useContext(CartContext)
+   const { cartItems, setCartItems, removeItem, addItem, item_minus } = useContext(CartContext)
    const total_Ammount = cartItems.reduce((total, obj) => total + obj.quantities * obj.price, 0)
    const total_Quantities = cartItems.reduce((total, obj) => total + obj.quantities, 0)
    const [showPop, setShowPop] = useState(false);
@@ -19,7 +19,7 @@ function Cart() {
    const [error_Alert_Text, setError_Alert_Text] = useState("")
    const [text_success_alert, setText_Success_Alert] = useState("")
    const { user, setUser } = useContext(UserContext)
-const navigate = useNavigate()
+   const navigate = useNavigate()
    useEffect(() => {
       if (user?.userInfo?.email_user) {
          setDetails_Email(user.userInfo.email_user);
@@ -40,38 +40,38 @@ const navigate = useNavigate()
       else {
          console.log(user.userInfo.id);
 
-         const ordersCollectionRef = collection(db, 'Orders');
+         // Prepare cart details
          let cartDetails = {
             name: details_Name,
             email: details_Email,
             address: details_Address,
             createdAt: serverTimestamp(),
-            item :cartItems,
-            order_user : user.userInfo.id,
-         }
+            item: cartItems,
+            totalAmount: total_Ammount,
+            order_user: user.userInfo.id,
+            status:'pending'
+         };
+
          console.log(cartDetails);
          try {
-            // Attempt to add the document
-            const docRef = await addDoc(ordersCollectionRef, cartDetails);
-            console.log('Document added with ID: ', docRef.id);
-            setText_Success_Alert('Order Created Successfully ✅')
-            localStorage.removeItem('cartItems')
-            setShowPop(false)
-            setCartItems([])
-            // navigate('/')
-        } catch (error) {
-            // Log the error if the document could not be added
+            // Create a reference to the 'orders' collection
+            const ordersCollectionRef = collection(db, "Orders");
+        
+            // Add the cart details as a new document in the collection
+            await addDoc(ordersCollectionRef, cartDetails);
+        
+            setText_Success_Alert('Order Created Successfully ✅');
+            localStorage.removeItem('cartItems');
+            setShowPop(false);
+            setCartItems([]);
+          } catch (error) {
             console.error('Error adding document: ', error);
-        }
-         
-setTimeout(() => {
-   setText_Success_Alert('')
-}, 2000);
-
+          }
       }
 
       setTimeout(() => {
          setError_Alert_Text('')
+         setText_Success_Alert('')
       }, 3000);
    }
    const closeAlert = () => {
@@ -79,20 +79,20 @@ setTimeout(() => {
       setText_Success_Alert('')
    }
 
-const closePopUp = ()=>{
-   setDetails_Name('')
-   setDetails_Email('')
-   setDetails_Address('')
-   setShowPop(false)
-}
+   const closePopUp = () => {
+      setDetails_Name('')
+      setDetails_Email('')
+      setDetails_Address('')
+      setShowPop(false)
+   }
 
    // Place Order end
 
    return (
       <div className="sm:mx-10 m-4">
-<Link to={'/my_orders'} className="fixed bottom-0 text-xl font-semibold bg-[#6D28D9] text-white p-2 rounded-lg flex justify-center items-center right-0 m-1 z-10">
-   Orders 📦
-</Link>
+         <Link to={'/my_orders'} className="fixed bottom-0 text-xl font-semibold bg-[#6D28D9] text-white p-2 rounded-lg flex justify-center items-center right-0 m-1 z-10">
+            Orders 📦
+         </Link>
          {/* Alert Error  */}
          {error_Alert_Text &&
             <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
@@ -105,13 +105,13 @@ const closePopUp = ()=>{
 
          {/* Changes alert  */}
          {text_success_alert &&
-                <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#C5F3D7] border-l-8 border-green-400 show fixed right-3 top-5">
-                    <span className="text-green-600"><FontAwesomeIcon icon={faCircleCheck} /></span>
-                    <span className="px-3 msg text-green-600 font-semibold">{text_success_alert}</span>
-                    <span onClick={closeAlert} className="text-green-600"><FontAwesomeIcon icon={faXmark} /></span>
-                </div>
+            <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#C5F3D7] border-l-8 border-green-400 show fixed right-3 top-5">
+               <span className="text-green-600"><FontAwesomeIcon icon={faCircleCheck} /></span>
+               <span className="px-3 msg text-green-600 font-semibold">{text_success_alert}</span>
+               <span onClick={closeAlert} className="text-green-600"><FontAwesomeIcon icon={faXmark} /></span>
+            </div>
 
-            }
+         }
 
          {/* PlaceOrder */}
          {showPop &&
