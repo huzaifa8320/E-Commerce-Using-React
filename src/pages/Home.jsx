@@ -10,7 +10,7 @@ import logo from "../assets/logo.png"
 import defaultProfile from "../assets/defaultProfile.png";
 import { CartContext } from "../context/CartContext";
 import { auth, db } from "../utils/firebase";
-import { onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 
 function Home() {
@@ -29,6 +29,36 @@ function Home() {
     const [data_Skip, setData_Skip] = useState(0);
     const [data_Total, setData_Total] = useState(0);
     const [data_Loading, setData_Loading] = useState(false);
+    const [all_products, setAll_Products] = useState([]);
+    // Updated Data 
+
+// Get all Products 
+useEffect(() => {
+    const productsCollectionRef = collection(db, 'Products');
+
+    const unsubscribe = onSnapshot(productsCollectionRef, (snapshot) => {
+
+        if (!snapshot.empty) {
+            const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            console.log('Products data:', products);
+            setAll_Products(products)
+        } else {
+            console.log('No products found in the collection.');
+            setAll_Products(null)
+        }
+
+    }, (error) => {
+        console.error('Error fetching products:', error);
+    });
+
+}, [])
+
+
+const filteredProducts = all_products.filter(data =>
+    data.title.toLowerCase().includes(searchTerm.toLowerCase())
+);
+    // Updated Data end
+
 
 
     useEffect(() => {
@@ -104,9 +134,7 @@ function Home() {
             });
     }, [choosenCategory, data_Limit]);
 
-    const filteredProducts = products.filter(product =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+   
 
 
 
@@ -316,7 +344,7 @@ function Home() {
                         <div className="loader"></div>
                     </div>
                 ) : (
-                    <div className="flex flex-wrap">
+                    <div className="flex gap-3 flex-wrap">
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map((item) => (
                                 <ProductCard item={item} key={item.id} />

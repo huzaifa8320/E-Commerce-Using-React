@@ -4,11 +4,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate, useParams } from "react-router";
 import Admin_bg_1 from "../assets/Admin_bg-1.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretRight, faCircleCheck, faCircleExclamation, faLeftLong, faPlus, faSpinner, faUpload, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCaretRight, faCircleCheck, faCircleExclamation, faEllipsis, faLeftLong, faPlus, faSpinner, faUpload, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import CategoryButton from "../components/CategoryButton";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { Image } from "antd";
 
 
 
@@ -24,9 +25,10 @@ function Admin() {
     const [product_price, setProduct_Price] = useState('')
     const [product_category, setProduct_Category] = useState('Select a Category')
     const [product_image, setProduct_Image] = useState(null)
-    const [firebase_loading , setFirebase_Loading] = useState(false)
+    const [firebase_loading, setFirebase_Loading] = useState(false)
     const [image, setImage] = useState(null);
-    const [all_products , setAll_Products] = useState(null)
+    const [all_products, setAll_Products] = useState(null)
+    const [show_menu, setShow_Menu] = useState(null)
 
     const options = ['Option 1', 'Option 2', 'Option 3'];
 
@@ -34,29 +36,60 @@ function Admin() {
 
     const navigate = useNavigate()
 
-
-
+    // Default show Products 
     useEffect(() => {
-
-        if (item == 'products') {
-
-            const productsCollectionRef = collection(db, 'Products');
-
-            const unsubscribe = onSnapshot(productsCollectionRef, (snapshot) => {
-
-                if (!snapshot.empty) {
-                    const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    console.log('Products data:', products);
-                    setAll_Products(products)
-                } else {
-                    console.log('No products found in the collection.');
-                    setAll_Products(null)
-                }
-
-            }, (error) => {
-                console.error('Error fetching products:', error);
-            });
+        if (!item) {
+            navigate('/admin/products');
         }
+    }, [item, navigate]);
+
+// Show Product menu 
+const handleMenuToggle = (productId) => {
+    if (show_menu === productId) {
+        setShow_Menu(null); 
+    } else {
+        setShow_Menu(productId); 
+    }
+};
+
+
+// Delete Product from db 
+const deleteProduct =async(id)=>{
+    try {
+        const productDocRef = doc(db, "Products", id);
+        await deleteDoc(productDocRef);
+        setText_Success_Alert('Delete Successfully ✅')
+    } 
+    catch (error) {
+        console.error("Error deleting product: ", error);
+        setError_Alert_Text('Something went Wrong ⚠')
+    }
+    setTimeout(() => {
+        setText_Success_Alert(null)
+        setError_Alert_Text(null)
+    }, 2000);
+}
+
+
+    // Get all Products 
+    useEffect(() => {
+        const productsCollectionRef = collection(db, 'Products');
+
+        const unsubscribe = onSnapshot(productsCollectionRef, (snapshot) => {
+
+            if (!snapshot.empty) {
+                const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('Products data:', products);
+                setAll_Products(products)
+            } else {
+                console.log('No products found in the collection.');
+                setAll_Products(null)
+            }
+
+        }, (error) => {
+            console.error('Error fetching products:', error);
+        });
+
     }, [item])
 
 
@@ -96,39 +129,39 @@ function Admin() {
 
 
 
-// Function to upload an image and return the URL
-const uploadImage = async (product_image) => {
-    const storageRef = ref(storage, `images/${product_image.name}`);
-  
-    try {
-      await uploadBytes(storageRef, product_image);
-      const downloadURL = await getDownloadURL(storageRef);
-      return downloadURL; 
-    } catch (error) {
-      console.error("Error uploading image: ", error);
-      throw error;
-    }
-  };
+    // Function to upload an image and return the URL
+    const uploadImage = async (product_image) => {
+        const storageRef = ref(storage, `images/${product_image.name}`);
+
+        try {
+            await uploadBytes(storageRef, product_image);
+            const downloadURL = await getDownloadURL(storageRef);
+            return downloadURL;
+        } catch (error) {
+            console.error("Error uploading image: ", error);
+            throw error;
+        }
+    };
 
 
     // Add Product db 
-    const add_product_db =async () => {
+    const add_product_db = async () => {
         if (!product_title) {
             setError_Alert_Text('Please Enter Title')
         }
-        else if (!product_discription){
+        else if (!product_discription) {
             setError_Alert_Text('Please Enter Discription')
         }
-        else if (!product_price){
+        else if (!product_price) {
             setError_Alert_Text('Please Enter Price')
         }
-        else if (product_category == 'Select a Category'){
+        else if (product_category == 'Select a Category') {
             setError_Alert_Text('Please Select Category')
         }
-        else if (!product_image){
+        else if (!product_image) {
             setError_Alert_Text('Please Select Image')
         }
-        else{
+        else {
             setFirebase_Loading(true)
             const imageUrl = await uploadImage(product_image);
             if (!imageUrl) {
@@ -136,19 +169,19 @@ const uploadImage = async (product_image) => {
             }
             try {
                 const docRef = await addDoc(collection(db, "Products"), {
-                  title : product_title,
-                  discription : product_discription,
-                  price : product_price,
-                  category : product_category,
-                  image : imageUrl
+                    title: product_title,
+                    discription: product_discription,
+                    price: product_price,
+                    category: product_category,
+                    image: imageUrl
                 });
                 console.log("Document written with ID: ", docRef.id);  // Success log
                 setFirebase_Loading(false)
-              } catch (error) {
+            } catch (error) {
                 setFirebase_Loading(false)
                 setError_Alert_Text('Something Went Wrong ⚠️')
                 console.error("Error adding document: ", error);  // Error log
-              }
+            }
             // console.log('Working');
             setText_Success_Alert('Add Product Successfully')
             setProduct_title('')
@@ -157,6 +190,7 @@ const uploadImage = async (product_image) => {
             setProduct_Category('Select a Category')
             setImage(null)
             setProduct_Image(null)
+            setPopUp_Product(false)
         }
         setTimeout(() => {
             setText_Success_Alert(null)
@@ -171,7 +205,7 @@ const uploadImage = async (product_image) => {
     }
 
     return (
-        <div className="border-4 min-h-screen flex">
+        <div className="min-h-screen flex">
             {/* Changes alert  */}
             {text_success_alert &&
                 <div className="z-10 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#C5F3D7] border-l-8 border-green-400 show fixed right-3 top-5">
@@ -193,7 +227,7 @@ const uploadImage = async (product_image) => {
             {/* <h1>Hello Admin</h1> */}
 
             {/* Side bar  */}
-            <div className="border-4  hidden sm:flex border-red-900 w-64 min-h-full  flex-col">
+            <div className="hidden sm:flex w-64 max-h-screen  flex-col">
                 <div className="p-6 gap-2 items-center flex bg-[#214162]">
                     <div className="shadow rounded-full bg-white w-14 h-14 flex">
                         {current_user_data?.photoURL ? <img src={current_user_data?.photoURL} alt="Photo" /> :
@@ -204,16 +238,12 @@ const uploadImage = async (product_image) => {
                         <p className="text-white font-semibold">{current_user_data?.email}</p>
                     </div>
                 </div>
-                <div
-                    style={{ backgroundImage: `url(${Admin_bg_1})` }}
-                    className="bg-[#15283c] flex-grow"
-                >
+                <div style={{ backgroundImage: `url(${Admin_bg_1})` }} className="bg-[#15283c] flex-grow">
                     <p className="p-5 border-b-2 border-[#FF5722] text-[18px] text-white font-semibold">General</p>
-
                     {/* Data  */}
                     <div className=" text-white mt-3  text-[18px]  cursor-pointer flex flex-col">
-                        <Link to={'/admin/products'}><div className={`h-14 ${item == 'products' && 'bg-gray-200 text-black font-medium'}  m-1 p-4 rounded-md flex  items-center`}>📦 Products</div></Link>
-                        <Link to={'/admin/orders'}><div className={`h-14 ${item == 'orders' && 'bg-gray-200 text-black font-medium'}  p-4 m-1 rounded-md flex items-center`}>🛒 Orders</div></Link>
+                        <Link to={'/admin/products'}><div className={`h-14 ${item == 'products' && 'bg-gray-200 text-black font-medium'}  m-2 p-4 rounded-md flex  items-center`}>📦 Products</div></Link>
+                        <Link to={'/admin/orders'}><div className={`h-14 ${item == 'orders' && 'bg-gray-200 text-black font-medium'}  p-4 m-2 rounded-md flex items-center`}>🛒 Orders</div></Link>
                     </div>
 
                 </div>
@@ -221,25 +251,40 @@ const uploadImage = async (product_image) => {
 
 
             {/* Main Bar  */}
-            <div className="max-w-full">
+            <div className="w-full flex flex-col max-h-screen overflow-y-auto">
+                {/* Show All Products  */}
+                <h1 className="text-3xl font-medium text-center p-4 mb-5 mx- bg-[#214162] text-white border">{item == 'products' ? 'Products' : 'Order'}</h1>
                 {item == 'products' &&
-                    <div>
-                        <h1 className="text-3xl font-medium text-center m-5">Products</h1>
-                        <div className="m-3 flex flex-wrap">
-                            {all_products ? 
-                                  all_products.map((item) => (
-                                    <div key={item.id} item={item} className="border w-52">
-                                        <img src={item.image} alt="" className="w-full"/>
-                                        <p>{item.title}</p>
-                                        <p>{item.discription}</p>
-                                        <p>{item.price}</p>
-                                        <p>{item.category}</p>
+                    <div className="">
+                        <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
+                            {all_products ?
+                                all_products.map((item) => (
+                                    <div key={item.id} item={item} className="shadow-md rounded-md  cursor-pointer duration-150 w-52">
+                                        <div className="w-full h-52 flex">
+                                            <Image src={item.image} className="object-cover rounded-t-md bg-center min-w-full min-h-full" />
+                                        </div>
+                                        <div className="m-3 flex flex-col gap-2 relative">
+
+                                            <p className="text-xs tracking-widest text-gray-500">{item.category.toUpperCase()}</p>
+                                            <p className="font-medium text-lg">{item.title.length > 20 ? item.title.slice(0, 1).toUpperCase() + item.title.slice(1,19) + '...' : item.title}</p>
+                                            <p className="h-14">{item.discription.length > 43 ? item.discription.slice(0, 43) + '...' : item.discription}</p>
+                                            <p>${item.price}</p>
+                                            <button className="absolute right-0 bottom-0">
+                                                <FontAwesomeIcon icon={faEllipsis} onClick={()=>handleMenuToggle(item.id)}/>
+                                                {show_menu === item.id &&
+                                                <div className="absolute h-[70px] z-50 w-[86px] flex flex-col justify-evenly right-full  shadow bg-[#214162] text-white font-medium rounded-md">
+                                                    <button onClick={()=>deleteProduct(item.id)} className="hover:bg-white hover:text-[#214162] mx-1">Delete</button>
+                                                    <button className="hover:bg-white hover:text-[#214162] mx-1">Edit</button>
+                                                </div>
+}
+                                            </button>
+                                        </div>
                                     </div> // Render a Card for each product
-                                  ))
-                            
-                            : 'No Doc'}
+                                ))
+
+                                : 'No Doc'}
                         </div>
-                        <button onClick={() => setPopUp_Product(true)} className="bg-[#1C2F42] w-14 h-14 rounded-full absolute bottom-0 right-0 m-5">
+                        <button onClick={() => setPopUp_Product(true)} className="bg-[#1C2F42] w-14 h-14 rounded-full fixed bottom-0 right-0 m-5">
                             <FontAwesomeIcon icon={faPlus} color="#ffff" />
                         </button>
                     </div>
@@ -283,10 +328,10 @@ const uploadImage = async (product_image) => {
                                 <input value={product_discription} onChange={(e) => setProduct_Discription(e.target.value)} type="text" className="outline-none border-2 rounded-md p-2" placeholder="Enter Description" />
 
                                 <p>Product Price :</p>
-                                <div className="border-2 rounded-md p-2">$<input value={product_price} onChange={(e) => setProduct_Price(e.target.value)} type="text" className="outline-none ps-2" placeholder="Enter Price" /></div>
+                                <div className="border-2 rounded-md p-2">$<input value={product_price} onChange={(e) => setProduct_Price(e.target.value)} type="number" className="outline-none ps-2 custom-input" placeholder="Enter Price" /></div>
                                 <div className="mt-3">
-                                    <CategoryButton setSelectedValue={setProduct_Category} defaultValue={product_category}/>
-                                    <button onClick={add_product_db} className="bg-[#15283C] text-white mt-4 ms-auto flex items-center gap-2 p-3 rounded-md">Add Product {firebase_loading ? <FontAwesomeIcon icon={faSpinner} spinPulse /> :<FontAwesomeIcon icon={faCaretRight} />}</button>
+                                    <CategoryButton setSelectedValue={setProduct_Category} defaultValue={product_category} />
+                                    <button onClick={add_product_db} className="bg-[#15283C] text-white mt-4 ms-auto flex items-center gap-2 p-3 rounded-md">Add Product {firebase_loading ? <FontAwesomeIcon icon={faSpinner} spinPulse /> : <FontAwesomeIcon icon={faCaretRight} />}</button>
                                 </div>
                             </div>
 

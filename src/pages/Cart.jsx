@@ -101,8 +101,8 @@ function Cart() {
          {cartItems.length > 0 ?
             cartItems.map((data) =>
                <div key={data.id} className="sm:flex my-4 h-auto border">
-                  <div className="border-r flex min-w-36 justify-center">
-                     <img src={data.thumbnail} alt="" className="h-[180px] max-w-36 my-auto" />
+                  <div className="border-r flex mx-auto w-36 justify-center">
+                     <img src={data.image} alt="" className="h-full object-cover w-full my-auto" />
                   </div>
                   <div className="ps-2 py-3 w-full">
                      <p className="font-semibold text-2xl">{data.title}</p>

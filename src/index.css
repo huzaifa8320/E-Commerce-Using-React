@@ -72,3 +72,14 @@
 }
 
 
+/* Remove Input number indicator  */
+.custom-input::-webkit-outer-spin-button,
+  .custom-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .custom-input {
+    -moz-appearance: textfield;
+  }
+
