@@ -33,7 +33,8 @@ function CartContextProvider({ children }) {
         if (itemIndex == -1) {
             arr.push({
                 ...item,
-                quantities: 1
+                quantities: 1,
+                fullFilled : 'pending'
             })
         }
         else {
@@ -74,7 +75,7 @@ function CartContextProvider({ children }) {
 
 
     return (
-        <CartContext.Provider value={{ cartItems, addItem, removeItem, isItemAdded, item_minus }}>
+        <CartContext.Provider value={{ cartItems, setCartItems, addItem, removeItem, isItemAdded, item_minus }}>
             {children}
         </CartContext.Provider>
     )

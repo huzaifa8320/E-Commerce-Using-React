@@ -1,13 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../context/CartContext";
-import { faCircleExclamation, faL, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCircleCheck, faCircleExclamation, faL, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UserContext } from "../context/UserContext";
-import { doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
+import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
 
 function Cart() {
-   const { cartItems, removeItem, addItem, item_minus } = useContext(CartContext)
+   const { cartItems,setCartItems, removeItem, addItem, item_minus } = useContext(CartContext)
    const total_Ammount = cartItems.reduce((total, obj) => total + obj.quantities * obj.price, 0)
    const total_Quantities = cartItems.reduce((total, obj) => total + obj.quantities, 0)
    const [showPop, setShowPop] = useState(false);
@@ -15,8 +17,9 @@ function Cart() {
    const [details_Email, setDetails_Email] = useState('');
    const [details_Address, setDetails_Address] = useState('');
    const [error_Alert_Text, setError_Alert_Text] = useState("")
+   const [text_success_alert, setText_Success_Alert] = useState("")
    const { user, setUser } = useContext(UserContext)
-
+const navigate = useNavigate()
    useEffect(() => {
       if (user?.userInfo?.email_user) {
          setDetails_Email(user.userInfo.email_user);
@@ -35,47 +38,87 @@ function Cart() {
          setError_Alert_Text('Please Enter Address')
       }
       else {
-         let cartDetails = cartItems
-            .map((item, index) => `*Item ${index + 1}*: ${item.title} - ${item.quantities} x ( $${item.price} )`)
-            .join('%0a%0a');
+         console.log(user.userInfo.id);
 
-         let url_to_send = `https://wa.me/+923135909715?text=*Name*: ${details_Name}%0a*Email*: ${details_Email}%0a%0a*Order Items*:%0a${cartDetails}%0a%0a*Total Price*: $${total_Ammount}%0a*Total Item*: ${total_Quantities}%0a%0a*Address*: ${details_Address}`;
+         const ordersCollectionRef = collection(db, 'Orders');
+         let cartDetails = {
+            name: details_Name,
+            email: details_Email,
+            address: details_Address,
+            createdAt: serverTimestamp(),
+            item :cartItems,
+            order_user : user.userInfo.id,
+         }
+         console.log(cartDetails);
+         try {
+            // Attempt to add the document
+            const docRef = await addDoc(ordersCollectionRef, cartDetails);
+            console.log('Document added with ID: ', docRef.id);
+            setText_Success_Alert('Order Created Successfully ✅')
+            localStorage.removeItem('cartItems')
+            setShowPop(false)
+            setCartItems([])
+            // navigate('/')
+        } catch (error) {
+            // Log the error if the document could not be added
+            console.error('Error adding document: ', error);
+        }
+         
+setTimeout(() => {
+   setText_Success_Alert('')
+}, 2000);
 
-         window.open(url_to_send)
-         const data = doc(db, 'User Data', user?.userInfo?.id);
-         setShowPop(false)
-         localStorage.removeItem('cartItems')
       }
 
       setTimeout(() => {
          setError_Alert_Text('')
       }, 3000);
    }
-   const closeWarningAlert = () => {
+   const closeAlert = () => {
       setError_Alert_Text('')
+      setText_Success_Alert('')
    }
+
+const closePopUp = ()=>{
+   setDetails_Name('')
+   setDetails_Email('')
+   setDetails_Address('')
+   setShowPop(false)
+}
 
    // Place Order end
 
    return (
       <div className="sm:mx-10 m-4">
-
+<Link to={'/my_orders'} className="fixed bottom-0 text-xl font-semibold bg-[#6D28D9] text-white p-2 rounded-lg flex justify-center items-center right-0 m-1 z-10">
+   Orders 📦
+</Link>
          {/* Alert Error  */}
          {error_Alert_Text &&
             <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
                <span className="text-[#DA7F0B]"><FontAwesomeIcon icon={faCircleExclamation} /></span>
                <span className="px-3 msg text-[#BE9049] font-semibold">{error_Alert_Text}</span>
-               <span onClick={closeWarningAlert} className="text-[#DA7F0B]"><FontAwesomeIcon icon={faXmark} /></span>
+               <span onClick={closeAlert} className="text-[#DA7F0B]"><FontAwesomeIcon icon={faXmark} /></span>
             </div>
 
          }
+
+         {/* Changes alert  */}
+         {text_success_alert &&
+                <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#C5F3D7] border-l-8 border-green-400 show fixed right-3 top-5">
+                    <span className="text-green-600"><FontAwesomeIcon icon={faCircleCheck} /></span>
+                    <span className="px-3 msg text-green-600 font-semibold">{text_success_alert}</span>
+                    <span onClick={closeAlert} className="text-green-600"><FontAwesomeIcon icon={faXmark} /></span>
+                </div>
+
+            }
 
          {/* PlaceOrder */}
          {showPop &&
             <div className="z-10 w-full flex justify-center items-center fixed top-0 right-0 h-screen bg-[#00000015]">
                <div className="bg-purple-700 max-[400px]:w-full max-[400px]:h-screen shadow-2xl px-8 rounded-lg w-[420px] h-[500px] text-white">
                   <div className="flex relative">
-                     <button onClick={() => setShowPop(false)} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></button>
+                     <button onClick={closePopUp} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></button>
                      <h1 className="text-3xl text-center font-bold mt-6 mb-3 mx-auto">Orders</h1>
                   </div>
                   <div className="bg-[#F3F1F5] my-5 rounded-lg h-10 ps-3 flex items-center">

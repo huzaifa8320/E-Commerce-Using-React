@@ -28,6 +28,7 @@ function Admin() {
     const [firebase_loading, setFirebase_Loading] = useState(false)
     const [image, setImage] = useState(null);
     const [all_products, setAll_Products] = useState(null)
+    const [all_Orders, setAll_Orders] = useState(null)
     const [show_menu, setShow_Menu] = useState(null)
 
     const options = ['Option 1', 'Option 2', 'Option 3'];
@@ -91,6 +92,27 @@ const deleteProduct =async(id)=>{
         });
 
     }, [item])
+
+        // Get all Orders 
+        useEffect(() => {
+            const ordersCollectionRef = collection(db, 'Orders');
+    
+            const unsubscribe = onSnapshot(ordersCollectionRef, (snapshot) => {
+    
+                if (!snapshot.empty) {
+                    const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    console.log('Orders data:', orders);
+                    setAll_Orders(orders)
+                } else {
+                    console.log('No Orders found in the collection.');
+                    setAll_Orders(null)
+                }
+    
+            }, (error) => {
+                console.error('Error fetching orders:', error);
+            });
+    
+        }, [item])
 
 
     // Image show locally 
@@ -288,6 +310,9 @@ const deleteProduct =async(id)=>{
                             <FontAwesomeIcon icon={faPlus} color="#ffff" />
                         </button>
                     </div>
+                }
+                {item == 'orders' &&
+                <p>Order</p>
                 }
 
                 {/* Pop Up add product  */}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Radio, Select } from 'antd';
 const CategoryButton = ({setSelectedValue , defaultValue}) => {
-  
+  const [selectedCategory, setSelectedCategory] = useState(defaultValue);
   const handleChange = (value) => {
     setSelectedValue(value); 
     // console.log('Selected value:', value);

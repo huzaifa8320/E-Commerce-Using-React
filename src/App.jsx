@@ -9,6 +9,7 @@ import UserContextProvider from './context/UserContext'
 import Cart from './pages/Cart'
 import CartContextProvider from './context/CartContext'
 import Admin from './pages/Admin'
+import My_Orders from './pages/My_Orders'
 
 function App() {
 
@@ -26,6 +27,7 @@ function App() {
               <Route path='/productdetails/:id' element={<ProductDetails />} />
               <Route path='/admin' element={<Admin/>} />
               <Route path='/admin/:item' element={<Admin/>} />
+              <Route path='/my_orders' element={<My_Orders/>} />
             </Routes>
           </CartContextProvider>
         </UserContextProvider>
