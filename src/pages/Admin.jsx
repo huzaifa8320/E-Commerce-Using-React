@@ -10,7 +10,7 @@ import { addDoc, collection, deleteDoc, doc, onSnapshot } from "firebase/firesto
 import CategoryButton from "../components/CategoryButton";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Image } from "antd";
-import { Firestore } from "firebase/firestore"; 
+import { Firestore } from "firebase/firestore";
 
 
 
@@ -31,7 +31,8 @@ function Admin() {
     const [all_products, setAll_Products] = useState(null)
     const [all_Orders, setAll_Orders] = useState(null)
     const [show_menu, setShow_Menu] = useState(null)
-    // const [allItems, setAllItems] = useState([]);
+    const [view_order, setView_Order] = useState();
+    console.log('All order', all_Orders);
 
     const options = ['Option 1', 'Option 2', 'Option 3'];
 
@@ -96,24 +97,22 @@ function Admin() {
     }, [item])
 
     // Get all Orders 
-
-
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(db, 'Orders'), (snapshot) => {
-          const all_order = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-        setAll_Orders(all_order)
-         
+            const all_order = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setAll_Orders(all_order)
+
         });
-    
+
         // Cleanup subscription on unmount
         return () => unsubscribe();
-      }, [item]);
-    
+    }, [item]);
 
-console.log(all_Orders);
+
+    console.log(all_Orders);
 
 
     // Image show locally 
@@ -227,6 +226,17 @@ console.log(all_Orders);
         setError_Alert_Text(null)
     }
 
+    // viewOrder 
+    const viewOrder = (order) => {
+        //    console.log('Item' , order.item)
+        setView_Order(
+            order
+        )
+    }
+    console.log(view_order);
+
+
+
     return (
         <div className="min-h-screen flex">
             {/* Changes alert  */}
@@ -305,15 +315,69 @@ console.log(all_Orders);
                                     </div> // Render a Card for each product
                                 ))
 
-                                : 'No Doc'}
+                                : 'No Product Try to Add Some 😀'}
                         </div>
                         <button onClick={() => setPopUp_Product(true)} className="bg-[#1C2F42] w-14 h-14 rounded-full fixed bottom-0 right-0 m-5">
                             <FontAwesomeIcon icon={faPlus} color="#ffff" />
                         </button>
                     </div>
                 }
+                {/* Show All Orders  */}
                 {item == 'orders' &&
-                    <p>Order</p>
+                    <div className="">
+                        <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
+                            {all_Orders?.length > 0 ?
+                                all_Orders.map((order) => (
+                                    <div key={order.id} item={order} className="shadow-md p-3 border- h-52 rounded-md  cursor-pointer duration-150 w-64">
+                                        <div className=" flex flex-col gap-2 relative border- h-full justify-between">
+                                            <button className="bg-[#FEDA9E] text-[#CC9049] font-medium p-1 rounded-md text-[15px] absolute right-0 top-0">{order.status.slice(0, 1).toUpperCase() + order.status.slice(1)}</button>
+                                            <p className="text-xl font-semibold">{order.name.slice(0, 1).toUpperCase() + order.name.slice(1)}</p>
+                                            <p className="font-medium text-lg">{order.email}</p>
+                                            <p>Total Amount: ${order.totalAmount}</p>
+                                            <p>Total Item: {order.item.length}</p>
+                                            <button onClick={() => viewOrder(order)} className="bg-[#214162] w-32 mx-auto p-2 text-white rounded-md">View Order 📦</button>
+                                        </div>
+                                    </div>
+                                ))
+
+                                : <p>No Order ☹</p>}
+                        </div>
+                    </div>
+                }
+
+                {/* Pop Up View Order  */}
+                {view_order &&
+                    <div className="bg-[#00000058] overflow-y-auto flex fixed top-0 left-0 w-full h-screen">
+                        <div className="bg-[#14273A] shadow-lg rounded-md text-white m-auto w-[700px] scrollable-div relative  h-[550px] overflow-auto">
+                            <div className="p-4 min-h-full">
+                                <p className="text-3xl font-medium mb-3">Items 📦</p>
+                                <button onClick={() => setView_Order(null)} className="absolute top-0 right-0 m-7 text-xl"><FontAwesomeIcon icon={faXmark} /></button>
+                                <div className="flex flex-wrap gap-5 justify-between">
+                                    {
+                                        view_order &&
+                                        view_order.item.map((item) => (
+                                            <div className="text-red-700 w-44 h-44 rounded-md relative cursor-pointer">
+                                                <Image src={item.image} style={{ height: '176px', width: '176px' }} className="w-full z-50 h-full object-cover rounded-md" />
+                                                <div className="w-full border- font-medium flex rounded-md absolute bottom-0 z-0" style={{ boxShadow: 'inset 0 -25px 20px rgba(0, 0, 0, 0.7)' }} >
+                                                    <div className="mt-auto px-3 mb-2">
+                                                        <p className="text-white">{item.title}</p>
+                                                        <p className="text-gray-300">{item.price}$</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                        // <div className="bg-white border-4">{view_order.status}</div>
+                                    }
+                                </div>
+                            </div>
+                            <div className="sticky bg-[#14273A] p-4 shadow-md bottom-0">
+                                <div className="rounded-full bg-white p-3 text-[#14273A] font-semibold">
+                                    <p>Total Items: {view_order.item.length}</p>
+                                    <p>Total Amount: ${view_order.totalAmount}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 }
 
                 {/* Pop Up add product  */}

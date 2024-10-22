@@ -1,64 +1,69 @@
-import { useState, useContext, useEffect } from "react"; // Added useState here
+import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
-import { collection, doc, onSnapshot } from "firebase/firestore";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore"; // Added query and where
 import { auth, db } from "../utils/firebase";
 import { Image } from "antd";
-import { height } from "@fortawesome/free-regular-svg-icons/faAddressBook";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom"; // Corrected import
 import { onAuthStateChanged } from "firebase/auth";
 
 function MyOrders() {
     // Step 1: Initialize state for orders
     const [my_orders, setMy_Orders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [dataloading, setDataLoading] = useState(true);
     const { user } = useContext(UserContext);  // Destructure user from UserContext
-    const navigate = useNavigate()
-
-
+    const navigate = useNavigate();
     
-    // Check User Login 
+    // // Check User Login 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
-            if (user_real && user.isLogin) {
-                // console.log('User log');
-                setLoading(false)
-            }
-            else if (!user_real) {
-                navigate('/')
+            if (user_real && user?.isLogin) {
+                setLoading(false);
+            } else if (!user_real) {
+                navigate('/');
             }
         });
         return () => unsubscribe();
-    }, [user]);
+    }, [user, navigate]); // Added navigate as a dependency
 
     useEffect(() => {
         // Step 2: Check if the user object is loaded before running the logic
         if (user && user.userInfo && user.userInfo.id) {
             const q = query(
-                collection(db, 'Orders'), // Ensure the collection name is correct
-                where('order_user', '==', user.userInfo.id) // Adjust according to your data structure
+                collection(db, 'Orders'), 
+                where('order_user', '==', user.userInfo.id) 
             );
-
+    
             // Set up a real-time listener
             const unsubscribe = onSnapshot(q, (snapshot) => {
-                const ordersData = snapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setMy_Orders(ordersData);
+                if (!snapshot.empty) {
+                    // Documents were found
+                    const ordersData = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    setMy_Orders(ordersData);
+                    setDataLoading(false)
+                    // setLoading(false)
+                    console.log('Documents found:', ordersData); // Log documents
+                } else {
+                    // No documents found
+                    console.log('No documents found.');
+                    setDataLoading(false)
+                    setMy_Orders([]); // Optionally clear orders if none are found
+                }
             }, (error) => {
                 console.error("Error fetching orders: ", error); // Error handling
             });
-
-            // Cleanup listener on unmount
-            return () => unsubscribe();
+    
+            return () => unsubscribe(); // Cleanup listener on unmount
         }
     }, [user]);
     
-    // Added user as a dependency to re-run if the user changes
+
     console.log(my_orders);
 
-
-    if (loading) {
+    if (loading || dataloading) {
         return <div>Loading...</div>;
     }
     return (
@@ -102,7 +107,9 @@ function MyOrders() {
                     ))}
                 </div>
             ) : (
-                <p>No orders available.</p> // Updated to provide a clearer fallback message
+                // <div className="flex justify-center items-center max-h-screen">
+    <p className="m-auto text-center text-2xl font-medium py-10">No orders available. 😕</p>
+// </div>
             )}
         </div>
 

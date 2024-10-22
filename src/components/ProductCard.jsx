@@ -8,7 +8,7 @@ function ProductCard( {item}) {
                 <img
                     alt="ecommerce"
                     className="object-cover w-full h-full "
-                src={item.image}
+                    src={`${item.image}`} 
                 />
             </span>
             <div className="mt-4">

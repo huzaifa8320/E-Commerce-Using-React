@@ -83,3 +83,14 @@
     -moz-appearance: textfield;
   }
 
+
+  /* Scroll Width  */
+
+  .scrollable-div::-webkit-scrollbar {
+    width: 15px; /* Set the width of the scrollbar */
+}
+
+.scrollable-div::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Rounded corners */
+}

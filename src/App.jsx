@@ -10,7 +10,6 @@ import Cart from './pages/Cart'
 import CartContextProvider from './context/CartContext'
 import Admin from './pages/Admin'
 import MyOrders from './pages/MyOrders'
-import ErrorBoundary from 'antd/es/alert/ErrorBoundary'
 
 function App() {
 
