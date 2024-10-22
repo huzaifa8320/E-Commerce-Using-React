@@ -347,15 +347,15 @@ function Admin() {
 
                 {/* Pop Up View Order  */}
                 {view_order &&
-                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen overflow-auto">
+                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen overflow-aut">
                         <div className="bg-[#14273A] flex flex-col shadow-lg rounded-md text-white m-auto sm:w-[700px] relative h-screen w-full sm:h-[550px]">
                             <p className="text-3xl font-medium m-5">Items 📦</p>
                             <button onClick={() => setView_Order(null)} className="absolute top-0 right-0 m-7 text-xl"><FontAwesomeIcon icon={faXmark} /></button>
-                            <div className="flex justify-center px-5 sm:justify-between max-h-[340px] overflow-auto scrollable-div my-5 flex-wrap gap-5">
+                            <div className="flex border-4 justify-center px-5 sm:justify-between h-full overflow-auto scrollable-div my-5 flex-wrap gap-5">
                                 {
                                     view_order &&
                                     view_order.item.map((item) => (
-                                        <div className="text-red-700 w-44  rounded-md relative cursor-pointer">
+                                        <div key={item.id} className="text-red-700 w-44 border-4 h-48 rounded-md relative cursor-pointer">
                                             <Image src={item.image} style={{ height: '176px', width: '176px' }} className="w-full z-50 h-full object-cover rounded-md" />
                                             <div className="w-full font-medium flex rounded-b-md absolute bottom-0 z-0" style={{ boxShadow: 'inset 0 -25px 20px rgba(0, 0, 0, 1)' }} >
                                                 <div className="mt-auto px-3 mb-2">
