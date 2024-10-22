@@ -350,24 +350,26 @@ function Admin() {
                     <div className="bg-[#00000058] overflow-y-auto flex fixed top-0 left-0 w-full h-screen">
                         <div className="bg-[#14273A] shadow-lg rounded-md text-white m-auto w-[700px] scrollable-div relative h-screen sm:h-[550px] overflow-auto">
                             <div className="p-5 min-h-full">
+                                <div>
                                     <p className="text-3xl font-medium mb-3">Items 📦</p>
                                     <button onClick={() => setView_Order(null)} className="absolute top-0 right-0 m-7 text-xl"><FontAwesomeIcon icon={faXmark} /></button>
-                                <div className="flex my-5 flex-wrap gap-5 justify-center sm:justify-between">
-                                    {
-                                        view_order &&
-                                        view_order.item.map((item) => (
-                                            <div className="text-red-700 w-44 h-44 rounded-md relative cursor-pointer">
-                                                <Image src={item.image} style={{ height: '176px', width: '176px' }} className="w-full z-50 h-full object-cover rounded-md" />
-                                                <div className="w-full font-medium flex rounded-b-md absolute bottom-0 z-0" style={{ boxShadow: 'inset 0 -25px 20px rgba(0, 0, 0, 1)' }} >
-                                                    <div className="mt-auto px-3 mb-2">
-                                                        <p className="text-white">{item.title}</p>
-                                                        <p className="text-gray-300">{item.price}$</p>
+                                    <div className="flex my-5 flex-wrap gap-5 justify-center sm:justify-between">
+                                        {
+                                            view_order &&
+                                            view_order.item.map((item) => (
+                                                <div className="text-red-700 w-44 h-44 rounded-md relative cursor-pointer">
+                                                    <Image src={item.image} style={{ height: '176px', width: '176px' }} className="w-full z-50 h-full object-cover rounded-md" />
+                                                    <div className="w-full font-medium flex rounded-b-md absolute bottom-0 z-0" style={{ boxShadow: 'inset 0 -25px 20px rgba(0, 0, 0, 1)' }} >
+                                                        <div className="mt-auto px-3 mb-2">
+                                                            <p className="text-white">{item.title}</p>
+                                                            <p className="text-gray-300">{item.price}$</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
-                                        // <div className="bg-white border-4">{view_order.status}</div>
-                                    }
+                                            ))
+                                            // <div className="bg-white border-4">{view_order.status}</div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                             <div className="sticky bg-[#14273A] p-4 shadow-md bottom-0">
@@ -380,6 +382,7 @@ function Admin() {
                                 </div>
 
                             </div>
+                            
                         </div>
                     </div>
                 }
