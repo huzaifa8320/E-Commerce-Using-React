@@ -347,7 +347,7 @@ function Admin() {
 
                 {/* Pop Up View Order  */}
                 {view_order &&
-                    <div className="bg-[#00000058] overflow-y-auto flex fixed top-0 left-0 w-full h-screen">
+                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen">
                         <div className="bg-[#14273A] shadow-lg rounded-md text-white m-auto w-[700px] scrollable-div relative h-screen sm:h-[550px] overflow-auto">
                             <div className="p-5 min-h-full">
                                 <div>
