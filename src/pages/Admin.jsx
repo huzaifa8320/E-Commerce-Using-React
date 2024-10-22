@@ -312,7 +312,7 @@ function Admin() {
                                                 }
                                             </button>
                                         </div>
-                                    </div> // Render a Card for each product
+                                    </div>
                                 ))
 
                                 : 'No Product Try to Add Some 😀'}
@@ -347,32 +347,27 @@ function Admin() {
 
                 {/* Pop Up View Order  */}
                 {view_order &&
-                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen">
-                        <div className="bg-[#14273A] shadow-lg rounded-md text-white m-auto w-[700px] scrollable-div relative h-screen sm:h-[550px] overflow-auto">
-                            <div className="p-5 min-h-full">
-                                <div>
-                                    <p className="text-3xl font-medium mb-3">Items 📦</p>
-                                    <button onClick={() => setView_Order(null)} className="absolute top-0 right-0 m-7 text-xl"><FontAwesomeIcon icon={faXmark} /></button>
-                                    <div className="flex my-5 flex-wrap gap-5 justify-center sm:justify-between">
-                                        {
-                                            view_order &&
-                                            view_order.item.map((item) => (
-                                                <div className="text-red-700 w-44 h-44 rounded-md relative cursor-pointer">
-                                                    <Image src={item.image} style={{ height: '176px', width: '176px' }} className="w-full z-50 h-full object-cover rounded-md" />
-                                                    <div className="w-full font-medium flex rounded-b-md absolute bottom-0 z-0" style={{ boxShadow: 'inset 0 -25px 20px rgba(0, 0, 0, 1)' }} >
-                                                        <div className="mt-auto px-3 mb-2">
-                                                            <p className="text-white">{item.title}</p>
-                                                            <p className="text-gray-300">{item.price}$</p>
-                                                        </div>
-                                                    </div>
+                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen overflow-auto">
+                        <div className="bg-[#14273A] flex flex-col shadow-lg rounded-md text-white m-auto sm:w-[700px] relative h-screen w-full sm:h-[550px]">
+                            <p className="text-3xl font-medium m-5">Items 📦</p>
+                            <button onClick={() => setView_Order(null)} className="absolute top-0 right-0 m-7 text-xl"><FontAwesomeIcon icon={faXmark} /></button>
+                            <div className="flex justify-center px-5 sm:justify-between max-h-[340px] overflow-auto scrollable-div my-5 flex-wrap gap-5">
+                                {
+                                    view_order &&
+                                    view_order.item.map((item) => (
+                                        <div className="text-red-700 w-44  rounded-md relative cursor-pointer">
+                                            <Image src={item.image} style={{ height: '176px', width: '176px' }} className="w-full z-50 h-full object-cover rounded-md" />
+                                            <div className="w-full font-medium flex rounded-b-md absolute bottom-0 z-0" style={{ boxShadow: 'inset 0 -25px 20px rgba(0, 0, 0, 1)' }} >
+                                                <div className="mt-auto px-3 mb-2">
+                                                    <p className="text-white">{item.title}</p>
+                                                    <p className="text-gray-300">{item.price}$</p>
                                                 </div>
-                                            ))
-                                            // <div className="bg-white border-4">{view_order.status}</div>
-                                        }
-                                    </div>
-                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
                             </div>
-                            <div className="sticky bg-[#14273A] p-4 shadow-md bottom-0">
+                            <div className="bg-[#14273A] my-3 mx-4 shadow-md">
                                 <div className="flex justify-center">
                                     <div className="rounded-full relative w-full px-5 bg-white p-1 text-[#14273A] font-semibold">
                                         <p className="text-xs my-2 sm:text-[16px]">Total Items: {view_order.item.length}</p>
@@ -382,7 +377,7 @@ function Admin() {
                                 </div>
 
                             </div>
-                            
+
                         </div>
                     </div>
                 }
