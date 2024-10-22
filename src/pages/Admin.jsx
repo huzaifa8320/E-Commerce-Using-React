@@ -6,7 +6,7 @@ import Admin_bg_1 from "../assets/Admin_bg-1.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretRight, faCircleCheck, faCircleExclamation, faEllipsis, faLeftLong, faPlus, faSpinner, faUpload, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import { addDoc, collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import CategoryButton from "../components/CategoryButton";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Image } from "antd";
@@ -17,6 +17,7 @@ import { Firestore } from "firebase/firestore";
 
 function Admin() {
     const [loading, setLoading] = useState(true)
+    const [update_loading, setUpdate_Loading] = useState(false)
     const [current_user_data, setCurrent_User_Data] = useState(null)
     const [popUp_Product, setPopUp_Product] = useState(false)
     const [text_success_alert, setText_Success_Alert] = useState(null)
@@ -235,7 +236,29 @@ function Admin() {
     }
     console.log(view_order);
 
+    // Aprrove Order 
+const approve_Order =async (viewOrder)=>{
+    console.log('He' , viewOrder.id);
+    try {
+        setUpdate_Loading(true)
+        // Reference the order document by its ID
+        const orderRef = doc(db, "Orders", viewOrder.id);
+        
+        // Update the status field to 'success'
+        await updateDoc(orderRef, {
+          status: "Success"
+        });
 
+    
+        console.log("Order status updated to success");
+        setUpdate_Loading(false)
+
+      } catch (error) {
+        console.error("Error updating order status: ", error);
+        setUpdate_Loading(false)
+      }
+    
+}
 
     return (
         <div className="min-h-screen flex">
@@ -348,14 +371,14 @@ function Admin() {
                 {/* Pop Up View Order  */}
                 {view_order &&
                     <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen overflow-aut">
-                        <div className="bg-[#14273A] flex flex-col shadow-lg rounded-md text-white m-auto sm:w-[700px] relative h-screen w-full sm:h-[550px]">
+                        <div className="bg-[#14273A] flex flex-col shadow-lg sm:rounded-md text-white m-auto sm:w-[700px] relative h-screen w-full sm:h-[550px]">
                             <p className="text-3xl font-medium m-5">Items 📦</p>
                             <button onClick={() => setView_Order(null)} className="absolute top-0 right-0 m-7 text-xl"><FontAwesomeIcon icon={faXmark} /></button>
-                            <div className="flex border-4 justify-center px-5 sm:justify-between h-full overflow-auto scrollable-div my-5 flex-wrap gap-5">
+                            <div className="flex justify-center px-5 sm:justify-between h-full overflow-auto scrollable-div my-5 flex-wrap gap-5">
                                 {
                                     view_order &&
                                     view_order.item.map((item) => (
-                                        <div key={item.id} className="text-red-700 w-44 border-4 h-48 rounded-md relative cursor-pointer">
+                                        <div key={item.id} className="text-red-700 w-44 h-48 rounded-md relative cursor-pointer">
                                             <Image src={item.image} style={{ height: '176px', width: '176px' }} className="w-full z-50 h-full object-cover rounded-md" />
                                             <div className="w-full font-medium flex rounded-b-md absolute bottom-0 z-0" style={{ boxShadow: 'inset 0 -25px 20px rgba(0, 0, 0, 1)' }} >
                                                 <div className="mt-auto px-3 mb-2">
@@ -372,7 +395,7 @@ function Admin() {
                                     <div className="rounded-full relative w-full px-5 bg-white p-1 text-[#14273A] font-semibold">
                                         <p className="text-xs my-2 sm:text-[16px]">Total Items: {view_order.item.length}</p>
                                         <p className="text-xs my-2 sm:text-[16px]">Total Amount: ${view_order.totalAmount}</p>
-                                        <button className="absolute top-1/2 right-0 transform mx-5 -translate-y-1/2 bg-[#214162] text-white rounded p-2">Approve</button>
+                                        <button onClick={() => approve_Order(view_order)} className="absolute top-1/2 right-0 transform mx-5 -translate-y-1/2 bg-[#214162] text-white rounded p-2">Approve{update_loading ? <FontAwesomeIcon icon={faSpinner} spinPulse className="ms-2"/> : <FontAwesomeIcon icon={faCaretRight} className="ms-2"/>}</button>
                                     </div>
                                 </div>
 

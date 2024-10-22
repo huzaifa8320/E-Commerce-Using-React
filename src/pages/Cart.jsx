@@ -49,7 +49,7 @@ function Cart() {
             item: cartItems,
             totalAmount: total_Ammount,
             order_user: user.userInfo.id,
-            status:'pending'
+            status:'Pending'
          };
 
          console.log(cartDetails);
