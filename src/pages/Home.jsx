@@ -14,6 +14,7 @@ import { Select } from "antd";
 
 
 function Home() {
+    // States 
     const [signOpen, setSignOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
@@ -23,8 +24,6 @@ function Home() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [all_products, setAll_Products] = useState([]);
     const [chooseCategory, setChooseCategory] = useState('All');
-    // Updated Data 
-console.log(user);
 
     // Get all Products 
     useEffect(() => {
@@ -34,11 +33,9 @@ console.log(user);
 
             if (!snapshot.empty) {
                 const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log('Products data:', products);
                 setAll_Products(products)
                 setLoading(false)
             } else {
-                console.log('No products found in the collection.');
                 setLoading(false)
                 setAll_Products([])
             }
@@ -60,23 +57,16 @@ console.log(user);
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
             if (user_real && user.isLogin) {
-                console.log('User log');
                 setUserLoading(false)
             }
             else if (!user_real) {
                 setUserLoading(false)
                 localStorage.removeItem('cartItems')
-                console.log('not log');
             }
         });
         return () => unsubscribe();
     }, [user]);
 
-
-    // Category Button 
-    const toggleDropdown = () => {
-        setIsOpen(!isOpen);
-    };
 
     //  Profile button 
     const openProfileDetails = () => {
@@ -145,23 +135,6 @@ console.log(user);
         setChooseCategory(value);
         setMenuOpen(false)
     }
-
-    // Updated Data end
-
-
-
-
-    // // Scroll data 
-    // useEffect(() => {
-    //     const scrollData = () => {
-    //         if (Math.ceil(window.innerHeight + document.documentElement.scrollTop) == document.documentElement.offsetHeight) {
-    //             if (data_Limit < data_Total) {
-    //                 setData_Limit(data_Limit + 20)
-    //             }
-    //         }
-    //     };
-    //     window.addEventListener('scroll', scrollData)
-    // }, [data_Limit, data_Loading])
 
     return (
         <div className="main">

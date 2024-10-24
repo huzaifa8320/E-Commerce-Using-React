@@ -14,7 +14,6 @@ function Login() {
     const [pass, setPass] = useState()
     const [eye, setEye] = useState(true)
     const [error_Alert_Text, setError_Alert_Text] = useState("")
-    const { user, setUser } = useContext(UserContext)
     const navigate = useNavigate()
 
     const showEye = () => {
@@ -33,15 +32,11 @@ function Login() {
     const login_with_Email = () => {
         signInWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {
-                const user = userCredential.user;
-                console.log(user);
-                
+                const user = userCredential.user;                
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                console.log(errorCode);
-                console.log(errorMessage);
                 if (errorCode === 'auth/invalid-email') {
                     setError_Alert_Text("Please Enter a valid Email");
                 }
@@ -87,7 +82,6 @@ function Login() {
     }
 
     const closeWarningAlert = () => {
-        console.log("Okay");
 setError_Alert_Text('')
     }
 

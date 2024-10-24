@@ -4,12 +4,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate, useParams } from "react-router";
 import Admin_bg_1 from "../assets/Admin_bg-1.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretRight, faCircleCheck, faCircleExclamation, faEllipsis, faLeftLong, faPlus, faSpinner, faUpload, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCaretRight, faCircleCheck, faCircleExclamation, faEllipsis, faFilter, faLeftLong, faPlus, faSpinner, faUpload, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import CategoryButton from "../components/CategoryButton";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { Image } from "antd";
+import { Image, Select } from "antd";
 import { Firestore } from "firebase/firestore";
 
 
@@ -33,9 +33,9 @@ function Admin() {
     const [all_Orders, setAll_Orders] = useState(null)
     const [show_menu, setShow_Menu] = useState(null)
     const [view_order, setView_Order] = useState();
-    console.log('All order', all_Orders);
+    const [filter, setFilter] = useState('All');
+    const [filter_Orders, setFilter_Orders] = useState(null);
 
-    const options = ['Option 1', 'Option 2', 'Option 3'];
 
     const { item } = useParams()
 
@@ -66,7 +66,6 @@ function Admin() {
             setText_Success_Alert('Delete Successfully ✅')
         }
         catch (error) {
-            console.error("Error deleting product: ", error);
             setError_Alert_Text('Something went Wrong ⚠')
         }
         setTimeout(() => {
@@ -84,10 +83,8 @@ function Admin() {
 
             if (!snapshot.empty) {
                 const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log('Products data:', products);
                 setAll_Products(products)
             } else {
-                console.log('No products found in the collection.');
                 setAll_Products(null)
             }
 
@@ -97,6 +94,35 @@ function Admin() {
 
     }, [item])
 
+
+
+    //   Filter Change 
+    const handle_filter_Change = (value) => {
+        setFilter(value)
+        if (value === 'All') {
+            setFilter_Orders(all_Orders);            // Show all orders if "All" is selected
+        } else {
+            const filtered = all_Orders?.filter(all_Orders => all_Orders.status === value);
+            setFilter_Orders(filtered);
+        }
+    }
+
+
+
+
+    // Filter Values 
+    const arr_filter = [
+        {
+            value: 'All',
+        },
+        {
+            value: 'Success',
+        },
+        {
+            value: 'Pending',
+        },
+    ]
+
     // Get all Orders 
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(db, 'Orders'), (snapshot) => {
@@ -105,15 +131,23 @@ function Admin() {
                 ...doc.data(),
             }));
             setAll_Orders(all_order)
+            // setFilter('All')
 
         });
+        handle_filter_Change(filter)
 
         // Cleanup subscription on unmount
         return () => unsubscribe();
     }, [item]);
 
+    useEffect(() => {
+        if (!filter_Orders) {
+            setFilter_Orders(all_Orders);
+        }
+    }, [all_Orders]);
 
-    console.log(all_Orders);
+
+
 
 
     // Image show locally 
@@ -134,8 +168,6 @@ function Admin() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (current_user) => {
             if (current_user?.email == 'admin1@gmail.com') {
-                console.log(current_user.email);
-                console.log(current_user);
                 setCurrent_User_Data(current_user)
                 setLoading(false)
             }
@@ -198,14 +230,11 @@ function Admin() {
                     category: product_category,
                     image: imageUrl
                 });
-                console.log("Document written with ID: ", docRef.id);  // Success log
                 setFirebase_Loading(false)
             } catch (error) {
                 setFirebase_Loading(false)
                 setError_Alert_Text('Something Went Wrong ⚠️')
-                console.error("Error adding document: ", error);  // Error log
             }
-            // console.log('Working');
             setText_Success_Alert('Add Product Successfully')
             setProduct_title('')
             setProduct_Discription('')
@@ -229,36 +258,35 @@ function Admin() {
 
     // viewOrder 
     const viewOrder = (order) => {
-        //    console.log('Item' , order.item)
         setView_Order(
             order
         )
     }
-    console.log(view_order);
 
     // Aprrove Order 
-const approve_Order =async (viewOrder)=>{
-    console.log('He' , viewOrder.id);
-    try {
-        setUpdate_Loading(true)
-        // Reference the order document by its ID
-        const orderRef = doc(db, "Orders", viewOrder.id);
-        
-        // Update the status field to 'success'
-        await updateDoc(orderRef, {
-          status: "Success"
-        });
+    const approve_Order = async (viewOrder) => {
+        try {
+            setUpdate_Loading(true)
+            // Reference the order document by its ID
+            const orderRef = doc(db, "Orders", viewOrder.id);
 
-    
-        console.log("Order status updated to success");
-        setUpdate_Loading(false)
+            // Update the status field to 'success'
+            await updateDoc(orderRef, {
+                status: "Success"
+            });
 
-      } catch (error) {
-        console.error("Error updating order status: ", error);
-        setUpdate_Loading(false)
-      }
-    
-}
+            setText_Success_Alert('Order Approved Successfully ✅')
+            setUpdate_Loading(false)
+            setView_Order(null)
+
+        } catch (error) {
+            setUpdate_Loading(false)
+        }
+        setTimeout(() => {
+            setText_Success_Alert(null)
+        }, 2000);
+
+    }
 
     return (
         <div className="min-h-screen flex">
@@ -309,7 +337,12 @@ const approve_Order =async (viewOrder)=>{
             {/* Main Bar  */}
             <div className="w-full flex flex-col max-h-screen overflow-y-auto">
                 {/* Show All Products  */}
-                <h1 className="text-3xl font-medium text-center p-4 mb-5 mx- bg-[#214162] text-white border-s">{item == 'products' ? 'Products' : 'Order'}</h1>
+                <div className="">
+                    <div className="flex relative w-full items-center">
+                        <h1 className="text-3xl w-full relative font-medium text-center p-4 bg-[#214162] text-white border-s">{item == 'products' ? 'Products' : 'Order'}</h1>
+                        {item == 'orders' && <Select className="absolute w-24 right-5" value={filter} options={arr_filter} onChange={handle_filter_Change} />}
+                    </div>
+                </div>
                 {item == 'products' &&
                     <div className="">
                         <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
@@ -347,13 +380,13 @@ const approve_Order =async (viewOrder)=>{
                 }
                 {/* Show All Orders  */}
                 {item == 'orders' &&
-                    <div className="">
+                    <div className="relative pt-5">
                         <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
-                            {all_Orders?.length > 0 ?
-                                all_Orders.map((order) => (
+                            {filter_Orders ?
+                                filter_Orders.map((order) => (
                                     <div key={order.id} item={order} className="shadow-md p-3 border- h-52 rounded-md  cursor-pointer duration-150 w-64">
                                         <div className=" flex flex-col gap-2 relative border- h-full justify-between">
-                                            <button className="bg-[#FEDA9E] text-[#CC9049] font-medium p-1 rounded-md text-[15px] absolute right-0 top-0">{order.status.slice(0, 1).toUpperCase() + order.status.slice(1)}</button>
+                                            <button className={`border ${order.status == 'Pending' && 'bg-[#FEDA9E] text-[#BE9049] border-[#BE9049]'} ${order.status == 'Success' && 'bg-[#C5F3D7] border-green-400 text-green-600'} font-medium p-1 rounded-md text-[15px] absolute right-0 top-0`}>{order.status}</button>
                                             <p className="text-xl font-semibold">{order.name.slice(0, 1).toUpperCase() + order.name.slice(1)}</p>
                                             <p className="font-medium text-lg">{order.email}</p>
                                             <p>Total Amount: ${order.totalAmount}</p>
@@ -395,7 +428,7 @@ const approve_Order =async (viewOrder)=>{
                                     <div className="rounded-full relative w-full px-5 bg-white p-1 text-[#14273A] font-semibold">
                                         <p className="text-xs my-2 sm:text-[16px]">Total Items: {view_order.item.length}</p>
                                         <p className="text-xs my-2 sm:text-[16px]">Total Amount: ${view_order.totalAmount}</p>
-                                        <button onClick={() => approve_Order(view_order)} className="absolute top-1/2 right-0 transform mx-5 -translate-y-1/2 bg-[#214162] text-white rounded p-2">Approve{update_loading ? <FontAwesomeIcon icon={faSpinner} spinPulse className="ms-2"/> : <FontAwesomeIcon icon={faCaretRight} className="ms-2"/>}</button>
+                                        {view_order.status != 'Success' && <button onClick={() => approve_Order(view_order)} className="absolute top-1/2 right-0 transform mx-5 -translate-y-1/2 bg-[#214162] text-white rounded p-2">Approve{update_loading ? <FontAwesomeIcon icon={faSpinner} spinPulse className="ms-2" /> : <FontAwesomeIcon icon={faCaretRight} className="ms-2" />}</button>}
                                     </div>
                                 </div>
 

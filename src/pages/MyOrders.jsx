@@ -1,19 +1,21 @@
 import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore"; // Added query and where
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { auth, db } from "../utils/firebase";
-import { Image } from "antd";
+import { Image, Select } from "antd";
 import { useNavigate } from "react-router-dom"; // Corrected import
 import { onAuthStateChanged } from "firebase/auth";
 
 function MyOrders() {
-    // Step 1: Initialize state for orders
+    // States 
     const [my_orders, setMy_Orders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dataloading, setDataLoading] = useState(true);
-    const { user } = useContext(UserContext);  // Destructure user from UserContext
+    const [filter, setFilter] = useState('All');
+    const [filter_Orders, setFilter_Orders] = useState(null);
+    const { user } = useContext(UserContext);
     const navigate = useNavigate();
-    
+
     // // Check User Login 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
@@ -24,73 +26,98 @@ function MyOrders() {
             }
         });
         return () => unsubscribe();
-    }, [user, navigate]); // Added navigate as a dependency
+    }, [user, navigate]);
 
+    // My Orders 
     useEffect(() => {
-        // Step 2: Check if the user object is loaded before running the logic
         if (user && user.userInfo && user.userInfo.id) {
             const q = query(
-                collection(db, 'Orders'), 
-                where('order_user', '==', user.userInfo.id) 
+                collection(db, 'Orders'),
+                where('order_user', '==', user.userInfo.id)
             );
-    
-            // Set up a real-time listener
+
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 if (!snapshot.empty) {
-                    // Documents were found
                     const ordersData = snapshot.docs.map((doc) => ({
                         id: doc.id,
                         ...doc.data(),
                     }));
                     setMy_Orders(ordersData);
                     setDataLoading(false)
-                    // setLoading(false)
-                    console.log('Documents found:', ordersData); // Log documents
                 } else {
-                    // No documents found
-                    console.log('No documents found.');
                     setDataLoading(false)
-                    setMy_Orders([]); // Optionally clear orders if none are found
+                    setMy_Orders([]);
                 }
             }, (error) => {
-                console.error("Error fetching orders: ", error); // Error handling
+                console.error("Error fetching orders: ", error);
             });
-    
-            return () => unsubscribe(); // Cleanup listener on unmount
+
+            return () => unsubscribe();
         }
     }, [user]);
-    
 
-    console.log(my_orders);
+// Set Filter Order When Orders Found 
+    useEffect(() => {
+        
+            setFilter_Orders(my_orders);
+
+    }, [my_orders]);
+
+    // Filter Values 
+    const arr_filter = [
+        {
+            value: 'All',
+        },
+        {
+            value: 'Success',
+        },
+        {
+            value: 'Pending',
+        },
+    ]
+
+
+    //   Filter Change 
+    const handle_filter_Change = (value) => {
+        setFilter(value)
+        if (value === 'All') {
+            setFilter_Orders(my_orders);  
+        } else {
+            const filtered = my_orders?.filter(my_orders => my_orders.status === value);
+            setFilter_Orders(filtered);
+        }
+    }
+
 
     if (loading || dataloading) {
         return <div>Loading...</div>;
     }
     return (
-        <div className="border-4 min-h-screen px-3">
-            <h1 className="bg-[#6D28D9] text-center text-white font-semibold text-4xl mx-2 sm:mx-9 my-8 p-4">
-                Order 🚚
-            </h1>
-            {my_orders.length > 0 ? (
+        <div className="min-h-screen px-2">
+            <div className="bg-[#6D28D9] flex justify-center items-center relative text-white font-semibold text-4xl mx-2 sm:mx-9 my-8 p-4">
+                <p>Order 🚚</p>
+                <Select options={arr_filter} value={filter} onChange={handle_filter_Change} className="absolute w-24 right-5" />
+
+            </div>
+            {filter_Orders.length > 0? (
                 <div className="mx-2 sm:mx-9">
-                    {my_orders.map((order) => (
-                        <div className="my-10 fle border-2 shadow p-4" key={order.id}> {/* Added padding for spacing */}
+                    {filter_Orders.map((order) => (
+                        <div className="my-10 fle border-2 shadow p-4" key={order.id}>
                             <div className="flex gap-2 relative mb-5 mt-2 justify-center flex-col font-semibold">
-                                {/* <h2>Order ID: {order.id}</h2> */}
                                 <h2>Amount: ${order.totalAmount}</h2>
-                                <button className={`border ${order.status == 'pending' && 'bg-[#FEDA9E]'} absolute right-0 p-2  text-[15px] rounded-md text-[#BE9049]`}>{order.status.slice(0, 1).toUpperCase() + order.status.slice(1)}</button>
+                                <button className={`border ${order.status == 'Pending' && 'bg-[#FEDA9E] text-[#BE9049] border-[#BE9049]'} ${order.status == 'Success' && 'bg-[#C5F3D7] border-green-400 text-green-600'} absolute right-0 p-2  text-[15px] rounded-md`}>{order.status}</button>
                             </div>
-                            <div className="justify-center sm:justify-normal flex gap-4 flex-wrap"> {/* Updated to use Tailwind CSS classes for consistency */}
+                            <div className="justify-center sm:justify-normal flex gap-4 flex-wrap">
                                 {order.item.map((item, index) => (
                                     <div
                                         key={index}
-                                        className="shadow hover:shadow-lg h-72 rounded-lg  w-48 text-center" // Use Tailwind CSS classes
+                                        className="shadow hover:shadow-lg h-72 rounded-lg  w-48 text-center"
                                     >
                                         <div className="w-full h-1/2 flex overflow-hidden">
                                             <Image
                                                 src={item.image}
                                                 className="object-cover rounded-t-md bg-center min-w-full min-h-full"
-                                                alt={item.title} // Always include alt for accessibility
+                                                alt={item.title}
                                             />
                                         </div>
 
@@ -107,9 +134,7 @@ function MyOrders() {
                     ))}
                 </div>
             ) : (
-                // <div className="flex justify-center items-center max-h-screen">
-    <p className="m-auto text-center text-2xl font-medium py-10">No orders available. 😕</p>
-// </div>
+                <p className="m-auto text-center text-2xl font-medium py-10">No orders available. 😕</p>
             )}
         </div>
 

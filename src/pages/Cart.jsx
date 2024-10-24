@@ -38,7 +38,6 @@ function Cart() {
          setError_Alert_Text('Please Enter Address')
       }
       else {
-         console.log(user.userInfo.id);
 
          // Prepare cart details
          let cartDetails = {
@@ -52,7 +51,6 @@ function Cart() {
             status:'Pending'
          };
 
-         console.log(cartDetails);
          try {
             // Create a reference to the 'orders' collection
             const ordersCollectionRef = collection(db, "Orders");

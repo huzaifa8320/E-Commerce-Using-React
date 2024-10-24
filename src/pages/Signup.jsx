@@ -14,7 +14,6 @@ function Login() {
     const [email, setEmail] = useState('')
     const [pass, setPass] = useState('')
     const [eye, setEye] = useState(true)
-    const { user, setUser } = useContext(UserContext)
     const [error_Alert_Text, setError_Alert_Text] = useState("")
 
     const navigate = useNavigate()
@@ -22,6 +21,8 @@ function Login() {
     const showEye = () => {
         eye ? setEye(false) : setEye(true)
     }
+
+    // Check User Login 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
             if (user_real) {
@@ -38,14 +39,12 @@ function Login() {
             .then(async (userCredential) => {
                 // Signed up 
                 const user = userCredential.user;
-                console.log(user);
 
                 await setDoc(doc(db, "User Data", user.uid), {
                     id: user.uid,
                     username: `${name.slice(0, 1).toLocaleUpperCase()}${name.slice(1)}`,
                     email_user: email,
                 });
-                console.log("Document written with ID: ", user.uid);
 
 
                 // ...
@@ -53,8 +52,6 @@ function Login() {
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                console.log(errorCode);
-                console.log(errorMessage);
                 if (errorCode === 'auth/invalid-email') {
                     setError_Alert_Text("Please Enter a valid Email");
                 }
@@ -82,7 +79,6 @@ function Login() {
                 const credential = GoogleAuthProvider.credentialFromResult(result);
                 const token = credential.accessToken;
                 const user = result.user;
-                console.log(user);
 
                 const data = doc(db, 'User Data', user.uid);
                await  setDoc(data, {
@@ -95,9 +91,6 @@ function Login() {
                 const errorMessage = error.message;
                 const email = error.customData.email;
                 const credential = GoogleAuthProvider.credentialFromError(error);
-                console.log(errorCode);
-                console.log(errorMessage);
-
             });
 
     }
