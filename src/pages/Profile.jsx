@@ -26,6 +26,8 @@ function Profile() {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
             if (user_real) {
                 console.log("User Is Login");
+                console.log(user_real);
+                
             }
             else {
 

@@ -77,6 +77,7 @@ function Admin() {
 
     // Get all Products 
     useEffect(() => {
+        setFilter('All')
         const productsCollectionRef = collection(db, 'Products');
 
         const unsubscribe = onSnapshot(productsCollectionRef, (snapshot) => {
@@ -134,16 +135,13 @@ function Admin() {
             // setFilter('All')
 
         });
-        handle_filter_Change(filter)
 
         // Cleanup subscription on unmount
         return () => unsubscribe();
     }, [item]);
 
     useEffect(() => {
-        if (!filter_Orders) {
-            setFilter_Orders(all_Orders);
-        }
+        setFilter_Orders(all_Orders);
     }, [all_Orders]);
 
 
@@ -344,7 +342,7 @@ function Admin() {
                     </div>
                 </div>
                 {item == 'products' &&
-                    <div className="">
+                    <div className="py-5">
                         <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
                             {all_products ?
                                 all_products.map((item) => (
@@ -382,12 +380,12 @@ function Admin() {
                 {item == 'orders' &&
                     <div className="relative pt-5">
                         <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
-                            {filter_Orders ?
+                            {filter_Orders?.length > 0 ?
                                 filter_Orders.map((order) => (
                                     <div key={order.id} item={order} className="shadow-md p-3 border- h-52 rounded-md  cursor-pointer duration-150 w-64">
                                         <div className=" flex flex-col gap-2 relative border- h-full justify-between">
                                             <button className={`border ${order.status == 'Pending' && 'bg-[#FEDA9E] text-[#BE9049] border-[#BE9049]'} ${order.status == 'Success' && 'bg-[#C5F3D7] border-green-400 text-green-600'} font-medium p-1 rounded-md text-[15px] absolute right-0 top-0`}>{order.status}</button>
-                                            <p className="text-xl font-semibold">{order.name.slice(0, 1).toUpperCase() + order.name.slice(1)}</p>
+                                            <p className="text-[18px] font-semibold">Name: {order.name.length > 10 ? order.name.slice(0, 1).toUpperCase() + order.name.slice(1, 9) + '...' : order.name.slice(0, 1).toUpperCase() + order.name.slice(1)}</p>
                                             <p className="font-medium text-lg">{order.email}</p>
                                             <p>Total Amount: ${order.totalAmount}</p>
                                             <p>Total Item: {order.item.length}</p>
@@ -405,7 +403,9 @@ function Admin() {
                 {view_order &&
                     <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen overflow-aut">
                         <div className="bg-[#14273A] flex flex-col shadow-lg sm:rounded-md text-white m-auto sm:w-[700px] relative h-screen w-full sm:h-[550px]">
-                            <p className="text-3xl font-medium m-5">Items 📦</p>
+                            <div className="flex items-center">
+                                <p className="text-3xl font-medium m-5">Items 📦</p>
+                            </div>
                             <button onClick={() => setView_Order(null)} className="absolute top-0 right-0 m-7 text-xl"><FontAwesomeIcon icon={faXmark} /></button>
                             <div className="flex justify-center px-5 sm:justify-between h-full overflow-auto scrollable-div my-5 flex-wrap gap-5">
                                 {
@@ -424,6 +424,7 @@ function Admin() {
                                 }
                             </div>
                             <div className="bg-[#14273A] my-3 mx-4 shadow-md">
+                                <p className="m-3 break-words">Address : {view_order.address}</p>
                                 <div className="flex justify-center">
                                     <div className="rounded-full relative w-full px-5 bg-white p-1 text-[#14273A] font-semibold">
                                         <p className="text-xs my-2 sm:text-[16px]">Total Items: {view_order.item.length}</p>
