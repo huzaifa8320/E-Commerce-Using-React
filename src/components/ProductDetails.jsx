@@ -5,6 +5,8 @@ import { CartContext } from "../context/CartContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { Image } from "antd";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAnglesLeft } from "@fortawesome/free-solid-svg-icons";
 
 function ProductDetails() {
     const { id } = useParams();
@@ -93,7 +95,8 @@ function ProductDetails() {
 
     return (
         <div className="min-h-screen flex justify-center">
-            <div className="lg:w-4/5 px-3 py-5 gap-5 w-full flex flex-col sm:flex-row sm:flex flex-wrap lg:flex-nowrap justify-center items-center">
+            <div className="lg:w-4/5 px-3 py-5 relative gap-5 w-full flex flex-col sm:flex-row sm:flex flex-wrap lg:flex-nowrap justify-center items-center">
+                <Link to={'/'} className="text-[#6D28D9] z-10 absolute text-3xl top-5 left-5"><FontAwesomeIcon icon={faAnglesLeft} /></Link>
                 <div className="w-full sm:w-1/2 flex justify-center">
                     <Image
                         alt="ecommerce"

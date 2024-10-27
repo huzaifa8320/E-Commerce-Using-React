@@ -3,8 +3,10 @@ import { UserContext } from "../context/UserContext";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { auth, db } from "../utils/firebase";
 import { Image, Select } from "antd";
-import { useNavigate } from "react-router-dom"; // Corrected import
+import { Link, useNavigate } from "react-router-dom"; // Corrected import
 import { onAuthStateChanged } from "firebase/auth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAnglesLeft, faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 function MyOrders() {
     // States 
@@ -45,7 +47,7 @@ function MyOrders() {
                     setMy_Orders(ordersData);
                     setDataLoading(false)
                     console.log('Data');
-                    
+
                 } else {
                     console.log('No Data');
                     setDataLoading(false)
@@ -59,10 +61,10 @@ function MyOrders() {
         }
     }, [user]);
 
-// Set Filter Order When Orders Found 
+    // Set Filter Order When Orders Found 
     useEffect(() => {
-        
-            setFilter_Orders(my_orders);
+
+        setFilter_Orders(my_orders);
 
     }, [my_orders]);
 
@@ -84,7 +86,7 @@ function MyOrders() {
     const handle_filter_Change = (value) => {
         setFilter(value)
         if (value === 'All') {
-            setFilter_Orders(my_orders);  
+            setFilter_Orders(my_orders);
         } else {
             const filtered = my_orders?.filter(my_orders => my_orders.status === value);
             setFilter_Orders(filtered);
@@ -93,16 +95,19 @@ function MyOrders() {
 
 
     if (loading || dataloading) {
-        return <div>Loading...</div>;
+        return <div className="flex justify-center items-center text-5xl text-[#6D28D9] h-screen">
+            <FontAwesomeIcon icon={faSpinner} spinPulse />
+        </div>;
     }
     return (
         <div className="min-h-screen px-2">
-            <div className="bg-[#6D28D9] flex justify-center items-center relative text-white font-semibold text-4xl mx-2 sm:mx-9 my-8 p-4">
-                <p>Order 🚚</p>
+            <div className="bg-[#6D28D9] rounded-md flex  items-center relative text-white font-semibold text-4xl mx-2 sm:mx-9 my-8 p-4">
+                <Link to={'/'} className="sm:me-auto text-2xl mx-1 sm:text-3xl"><FontAwesomeIcon icon={faAnglesLeft} className="" /></Link>
+                <p className="text-3xl sm:text-4xl me-auto flex gap-1 items-center">Order <span className="hidden sm:flex">🚚</span></p>
                 <Select options={arr_filter} value={filter} onChange={handle_filter_Change} className="absolute w-24 right-5" />
 
             </div>
-            {filter_Orders.length > 0? (
+            {filter_Orders.length > 0 ? (
                 <div className="mx-2 sm:mx-9">
                     {filter_Orders.map((order) => (
                         <div className="my-10 fle border-2 shadow p-4" key={order.id}>

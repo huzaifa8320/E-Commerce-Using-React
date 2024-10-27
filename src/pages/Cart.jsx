@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../context/CartContext";
-import { faCircleCheck, faCircleExclamation, faL, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faAnglesLeft, faCircleCheck, faCircleExclamation, faL, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UserContext } from "../context/UserContext";
 import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
@@ -48,23 +48,24 @@ function Cart() {
             item: cartItems,
             totalAmount: total_Ammount,
             order_user: user.userInfo.id,
-            status:'Pending'
+            status: 'Pending'
          };
 
          try {
             // Create a reference to the 'orders' collection
             const ordersCollectionRef = collection(db, "Orders");
-        
+
             // Add the cart details as a new document in the collection
             await addDoc(ordersCollectionRef, cartDetails);
-        
+
             setText_Success_Alert('Order Created Successfully ✅');
             localStorage.removeItem('cartItems');
             setShowPop(false);
             setCartItems([]);
-          } catch (error) {
+            navigate('/my_orders')
+         } catch (error) {
             console.error('Error adding document: ', error);
-          }
+         }
       }
 
       setTimeout(() => {
@@ -130,8 +131,10 @@ function Cart() {
                </div>
             </div>
          }
-         <h1 className="text-center text-4xl my-8 py-4 font-semibold bg-[#6D28D9] text-white">Cart Details</h1>
-
+         <div className="bg-[#6D28D9] rounded-md flex justify-between  items-center relative text-white font-semibold text-4xl my-8 p-4">
+            <Link to={'/'} className="text-2xl absolute sm:text-3xl"><FontAwesomeIcon icon={faAnglesLeft} className="" /></Link>
+            <p className="text-3xl sm:text-4xl w-full text-center">Cart Details 🚚</p>
+         </div>
          {cartItems.length > 0 && <div className="flex">
             <div>
                <h1 className="font-semibold">Total Price: ${Math.floor(total_Ammount)}</h1>

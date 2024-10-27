@@ -4,19 +4,22 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate, useParams } from "react-router";
 import Admin_bg_1 from "../assets/Admin_bg-1.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretRight, faCircleCheck, faCircleExclamation, faEllipsis, faFilter, faLeftLong, faPlus, faSpinner, faUpload, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faCaretRight, faCircleCheck, faCircleExclamation, faEllipsis, faFilter, faLeftLong, faPlus, faSpinner, faUpload, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import CategoryButton from "../components/CategoryButton";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Image, Select } from "antd";
 import { Firestore } from "firebase/firestore";
+import { faAnglesLeft } from "@fortawesome/free-solid-svg-icons/faAnglesLeft";
 
 
 
 
 function Admin() {
     const [loading, setLoading] = useState(true)
+    const [product_loading, setProduct_Loading] = useState(true)
+    const [order_loading, setOrder_Loading] = useState(true)
     const [update_loading, setUpdate_Loading] = useState(false)
     const [current_user_data, setCurrent_User_Data] = useState(null)
     const [popUp_Product, setPopUp_Product] = useState(false)
@@ -35,10 +38,16 @@ function Admin() {
     const [view_order, setView_Order] = useState();
     const [filter, setFilter] = useState('All');
     const [filter_Orders, setFilter_Orders] = useState(null);
-
+    const [slide_bar, setSlide_Bar] = useState(false);
+    // alert(slide_bar)
 
     const { item } = useParams()
 
+
+    const slide_open = () => {
+        setSlide_Bar(!slide_bar)
+
+    }
     const navigate = useNavigate()
 
     // Default show Products 
@@ -85,8 +94,10 @@ function Admin() {
             if (!snapshot.empty) {
                 const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setAll_Products(products)
+                setProduct_Loading(false)
             } else {
                 setAll_Products(null)
+                setProduct_Loading(false)
             }
 
         }, (error) => {
@@ -132,6 +143,7 @@ function Admin() {
                 ...doc.data(),
             }));
             setAll_Orders(all_order)
+            setOrder_Loading(false)
             // setFilter('All')
 
         });
@@ -142,6 +154,7 @@ function Admin() {
 
     useEffect(() => {
         setFilter_Orders(all_Orders);
+        // setOrder_Loading(false)
     }, [all_Orders]);
 
 
@@ -306,71 +319,97 @@ function Admin() {
                 </div>
 
             }
-            {/* <h1>Hello Admin</h1> */}
 
             {/* Side bar  */}
-            <div className="hidden sm:flex w-64 max-h-screen  flex-col">
-                <div className="p-6 gap-2 items-center flex bg-[#214162]">
+            <div
+                className={`${slide_bar ? 'translate-x-0' : '-translate-x-full'
+                    } sm:translate-x-0 transition-transform duration-300 absolute sm:relative border-e sm:border-transparent flex z-10 sm:flex w-64 h-screen flex-col`}
+            >
+                <div className="p-6 gap-2 items-center flex bg-[#214162] relative">
+                    <div className="absolute sm:hidden top-3 right-3 text-white text-xl cursor-pointer" onClick={()=>slide_open()}><FontAwesomeIcon icon={faXmark}/></div>
                     <div className="shadow rounded-full bg-white w-14 h-14 flex">
-                        {current_user_data?.photoURL ? <img src={current_user_data?.photoURL} alt="Photo" /> :
-                            <FontAwesomeIcon icon={faUser} className="m-auto text-gray-400" />}
+                        {current_user_data?.photoURL ? (
+                            <img src={current_user_data?.photoURL} alt="Photo" />
+                        ) : (
+                            <FontAwesomeIcon icon={faUser} className="m-auto text-gray-400" />
+                        )}
                     </div>
                     <div className="text-[15px]">
-                        <p className="text-white font-semibold">{current_user_data?.displayName ? current_user_data?.displayName : 'No Name'}</p>
+                        <p className="text-white font-semibold">
+                            {current_user_data?.displayName || 'No Name'}
+                        </p>
                         <p className="text-white font-semibold">{current_user_data?.email}</p>
                     </div>
                 </div>
-                <div style={{ backgroundImage: `url(${Admin_bg_1})` }} className="bg-[#15283c] flex-grow">
+                <div
+                    style={{ backgroundImage: `url(${Admin_bg_1})` }}
+                    className="bg-[#15283c] relative flex-grow"
+                >
                     <p className="p-5 border-b-2 border-[#FF5722] text-[18px] text-white font-semibold">General</p>
-                    {/* Data  */}
-                    <div className=" text-white mt-3  text-[18px]  cursor-pointer flex flex-col">
-                        <Link to={'/admin/products'}><div className={`h-14 ${item == 'products' && 'bg-gray-200 text-black font-medium'}  m-2 p-4 rounded-md flex  items-center`}>📦 Products</div></Link>
-                        <Link to={'/admin/orders'}><div className={`h-14 ${item == 'orders' && 'bg-gray-200 text-black font-medium'}  p-4 m-2 rounded-md flex items-center`}>🛒 Orders</div></Link>
+                    {/* Data */}
+                    <div className="text-white mt-3 text-[18px] cursor-pointer flex flex-col">
+                        <Link to={'/admin/products'} onClick={()=> slide_open()}>
+                            <div className={`h-14 ${item === 'products' && 'bg-gray-200 text-black font-medium'} m-2 p-4 rounded-md flex items-center`}>
+                                📦 Products
+                            </div>
+                        </Link>
+                        <Link to={'/admin/orders'} onClick={()=> slide_open()}>
+                            <div className={`h-14 ${item === 'orders' && 'bg-gray-200 text-black font-medium'} p-4 m-2 rounded-md flex items-center`}>
+                                🛒 Orders
+                            </div>
+                        </Link>
                     </div>
-
+                    <Link to={'/'} className="absolute bottom-5 left-5 text-white flex gap-3 items-center text-xl font-semibold">
+                        <FontAwesomeIcon icon={faAnglesLeft} />
+                        <span>Back To Site 🌐</span>
+                    </Link>
                 </div>
             </div>
+
 
 
             {/* Main Bar  */}
             <div className="w-full flex flex-col max-h-screen overflow-y-auto">
                 {/* Show All Products  */}
                 <div className="">
-                    <div className="flex relative w-full items-center">
-                        <h1 className="text-3xl w-full relative font-medium text-center p-4 bg-[#214162] text-white border-s">{item == 'products' ? 'Products' : 'Order'}</h1>
+                    <div className="flex border-s bg-[#214162] relative w-full items-center">
+                        <div className="text-white text-2xl mx-5 sm:hidden cursor-pointer" onClick={() => slide_open()}><FontAwesomeIcon icon={faBars} /></div>
+                        <h1 className="text-3xl w-full relative font-medium sm:text-center p-4 bg-[#214162] text-white">{item == 'products' ? 'Products' : 'Order'}</h1>
                         {item == 'orders' && <Select className="absolute w-24 right-5" value={filter} options={arr_filter} onChange={handle_filter_Change} />}
                     </div>
                 </div>
                 {item == 'products' &&
-                    <div className="py-5">
-                        <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
-                            {all_products ?
-                                all_products.map((item) => (
-                                    <div key={item.id} item={item} className="shadow-md rounded-md  cursor-pointer duration-150 w-52">
-                                        <div className="w-full h-52 flex">
-                                            <Image src={item.image} className="object-cover rounded-t-md bg-center min-w-full min-h-full" />
-                                        </div>
-                                        <div className="m-3 flex flex-col gap-2 relative">
+                    <div className="h-full">
+                        {product_loading ? <div className="flex justify-center items-center max-h-full h-full"><FontAwesomeIcon icon={faSpinner} spinPulse className="text-3xl" /></div> :
+                            <div className="flex py-5 justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
+                                {all_products ?
+                                    all_products.map((item) => (
+                                        <div key={item.id} item={item} className="shadow-md rounded-md  cursor-pointer duration-150 w-52">
+                                            <div className="w-full h-52 flex">
+                                                <Image src={item.image} className="object-cover rounded-t-md bg-center min-w-full min-h-full" />
+                                            </div>
+                                            <div className="m-3 flex flex-col gap-2 relative">
 
-                                            <p className="text-xs tracking-widest text-gray-500">{item.category.toUpperCase()}</p>
-                                            <p className="font-medium text-lg">{item.title.length > 20 ? item.title.slice(0, 1).toUpperCase() + item.title.slice(1, 19) + '...' : item.title}</p>
-                                            <p className="h-14">{item.discription.length > 43 ? item.discription.slice(0, 43) + '...' : item.discription}</p>
-                                            <p>${item.price}</p>
-                                            <button className="absolute right-0 bottom-0">
-                                                <FontAwesomeIcon icon={faEllipsis} onClick={() => handleMenuToggle(item.id)} />
-                                                {show_menu === item.id &&
-                                                    <div className="absolute h-[70px] z-50 w-[86px] flex flex-col justify-evenly right-full  shadow bg-[#214162] text-white font-medium rounded-md">
-                                                        <button onClick={() => deleteProduct(item.id)} className="hover:bg-white hover:text-[#214162] mx-1">Delete</button>
-                                                        <button className="hover:bg-white hover:text-[#214162] mx-1">Edit</button>
-                                                    </div>
-                                                }
-                                            </button>
+                                                <p className="text-xs tracking-widest text-gray-500">{item.category.toUpperCase()}</p>
+                                                <p className="font-medium text-lg">{item.title.length > 20 ? item.title.slice(0, 1).toUpperCase() + item.title.slice(1, 19) + '...' : item.title}</p>
+                                                <p className="h-14">{item.discription.length > 43 ? item.discription.slice(0, 43) + '...' : item.discription}</p>
+                                                <p>${item.price}</p>
+                                                <button className="absolute right-0 bottom-0">
+                                                    <FontAwesomeIcon icon={faEllipsis} onClick={() => handleMenuToggle(item.id)} />
+                                                    {show_menu === item.id &&
+                                                        <div className="absolute h-[70px] z-50 w-[86px] flex flex-col justify-evenly right-full  shadow bg-[#214162] text-white font-medium rounded-md">
+                                                            <button onClick={() => deleteProduct(item.id)} className="hover:bg-white hover:text-[#214162] mx-1">Delete</button>
+                                                            <button className="hover:bg-white hover:text-[#214162] mx-1">Edit</button>
+                                                        </div>
+                                                    }
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    ))
 
-                                : 'No Product Try to Add Some 😀'}
-                        </div>
+                                    : 'No Product Try to Add Some 😀'}
+                            </div>
+                        }
                         <button onClick={() => setPopUp_Product(true)} className="bg-[#1C2F42] w-14 h-14 rounded-full fixed bottom-0 right-0 m-5">
                             <FontAwesomeIcon icon={faPlus} color="#ffff" />
                         </button>
@@ -378,30 +417,32 @@ function Admin() {
                 }
                 {/* Show All Orders  */}
                 {item == 'orders' &&
-                    <div className="relative pt-5">
-                        <div className="flex justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
-                            {filter_Orders?.length > 0 ?
-                                filter_Orders.map((order) => (
-                                    <div key={order.id} item={order} className="shadow-md p-3 border- h-52 rounded-md  cursor-pointer duration-150 w-64">
-                                        <div className=" flex flex-col gap-2 relative border- h-full justify-between">
-                                            <button className={`border ${order.status == 'Pending' && 'bg-[#FEDA9E] text-[#BE9049] border-[#BE9049]'} ${order.status == 'Success' && 'bg-[#C5F3D7] border-green-400 text-green-600'} font-medium p-1 rounded-md text-[15px] absolute right-0 top-0`}>{order.status}</button>
-                                            <p className="text-[18px] font-semibold">Name: {order.name.length > 10 ? order.name.slice(0, 1).toUpperCase() + order.name.slice(1, 9) + '...' : order.name.slice(0, 1).toUpperCase() + order.name.slice(1)}</p>
-                                            <p className="font-medium text-lg">{order.email}</p>
-                                            <p>Total Amount: ${order.totalAmount}</p>
-                                            <p>Total Item: {order.item.length}</p>
-                                            <button onClick={() => viewOrder(order)} className="bg-[#214162] w-32 mx-auto p-2 text-white rounded-md">View Order 📦</button>
+                    <div className="relative h-full">
+                        {order_loading ? <div className="flex justify-center items-center max-h-full h-full"><FontAwesomeIcon icon={faSpinner} spinPulse className="text-3xl" /></div> :
+                            <div className="flex py-5 justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
+                                {filter_Orders?.length > 0 ?
+                                    filter_Orders.map((order) => (
+                                        <div key={order.id} item={order} className="shadow-md p-3 border- h-52 rounded-md  cursor-pointer duration-150 w-64">
+                                            <div className=" flex flex-col gap-2 relative border- h-full justify-between">
+                                                <button className={`border ${order.status == 'Pending' && 'bg-[#FEDA9E] text-[#BE9049] border-[#BE9049]'} ${order.status == 'Success' && 'bg-[#C5F3D7] border-green-400 text-green-600'} font-medium p-1 rounded-md text-[15px] absolute right-0 top-0`}>{order.status}</button>
+                                                <p className="text-[18px] font-semibold">Name: {order.name.length > 10 ? order.name.slice(0, 1).toUpperCase() + order.name.slice(1, 9) + '...' : order.name.slice(0, 1).toUpperCase() + order.name.slice(1)}</p>
+                                                <p className="font-medium text-lg">{order.email}</p>
+                                                <p>Total Amount: ${order.totalAmount}</p>
+                                                <p>Total Item: {order.item.length}</p>
+                                                <button onClick={() => viewOrder(order)} className="bg-[#214162] w-32 mx-auto p-2 text-white rounded-md">View Order 📦</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    ))
 
-                                : <p>No Order ☹</p>}
-                        </div>
+                                    : <p>No Order ☹</p>}
+                            </div>
+                        }
                     </div>
                 }
 
                 {/* Pop Up View Order  */}
                 {view_order &&
-                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen overflow-aut">
+                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen">
                         <div className="bg-[#14273A] flex flex-col shadow-lg sm:rounded-md text-white m-auto sm:w-[700px] relative h-screen w-full sm:h-[550px]">
                             <div className="flex items-center">
                                 <p className="text-3xl font-medium m-5">Items 📦</p>
@@ -441,8 +482,8 @@ function Admin() {
 
                 {/* Pop Up add product  */}
                 {popUp_Product &&
-                    <div className="bg-[#00000058] flex justify-center  fixed top-0 left-0 w-full h-screen overflow-auto">
-                        <div className="w-[450px] bg-white shadow-2xl m-auto max-h-[580px] overflow-auto rounded-lg p-5 pb-2">
+                    <div className="bg-[#00000058] z-20 flex justify-center  fixed top-0 left-0 w-full h-screen overflow-auto">
+                        <div className="sm:w-[450px] w-full h-screen bg-white shadow-2xl m-auto sm:max-h-[580px] overflow-auto sm:rounded-lg p-5 pb-2">
                             <p className="font-medium relative">
                                 Add New Product
                                 <button onClick={() => setPopUp_Product(false)} className="absolute top-0 right-0"><FontAwesomeIcon icon={faXmark} /></button>
