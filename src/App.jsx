@@ -10,6 +10,7 @@ import Cart from './pages/Cart'
 import CartContextProvider from './context/CartContext'
 import Admin from './pages/Admin'
 import MyOrders from './pages/MyOrders'
+import AdminProfile from './pages/AdminProfile'
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
               <Route path='/admin' element={<Admin/>} />
               <Route path='/admin/:item' element={<Admin/>} />
               <Route path='/my_orders' element={<MyOrders/>} />
+              <Route path='/admin/profile' element={<AdminProfile/>} />
             </Routes>
           </CartContextProvider>
         </UserContextProvider>

@@ -326,10 +326,10 @@ function Admin() {
                     } sm:translate-x-0 transition-transform duration-300 absolute sm:relative border-e sm:border-transparent flex z-10 sm:flex w-64 h-screen flex-col`}
             >
                 <div className="p-6 gap-2 items-center flex bg-[#214162] relative">
-                    <div className="absolute sm:hidden top-3 right-3 text-white text-xl cursor-pointer" onClick={()=>slide_open()}><FontAwesomeIcon icon={faXmark}/></div>
-                    <div className="shadow rounded-full bg-white w-14 h-14 flex">
+                    <div className="absolute sm:hidden top-3 right-3 text-white text-xl cursor-pointer" onClick={() => slide_open()}><FontAwesomeIcon icon={faXmark} /></div>
+                    <div className="shadow-xl rounded-full bg-white w-14 h-14 flex">
                         {current_user_data?.photoURL ? (
-                            <img src={current_user_data?.photoURL} alt="Photo" />
+                            <Image src={current_user_data?.photoURL} style={{width: '56px', height:'56px'}} alt="Photo" className="object-cover rounded-full"/>
                         ) : (
                             <FontAwesomeIcon icon={faUser} className="m-auto text-gray-400" />
                         )}
@@ -348,21 +348,24 @@ function Admin() {
                     <p className="p-5 border-b-2 border-[#FF5722] text-[18px] text-white font-semibold">General</p>
                     {/* Data */}
                     <div className="text-white mt-3 text-[18px] cursor-pointer flex flex-col">
-                        <Link to={'/admin/products'} onClick={()=> slide_open()}>
+                        <Link to={'/admin/products'} onClick={() => slide_open()}>
                             <div className={`h-14 ${item === 'products' && 'bg-gray-200 text-black font-medium'} m-2 p-4 rounded-md flex items-center`}>
                                 📦 Products
                             </div>
                         </Link>
-                        <Link to={'/admin/orders'} onClick={()=> slide_open()}>
+                        <Link to={'/admin/orders'} onClick={() => slide_open()}>
                             <div className={`h-14 ${item === 'orders' && 'bg-gray-200 text-black font-medium'} p-4 m-2 rounded-md flex items-center`}>
                                 🛒 Orders
                             </div>
                         </Link>
                     </div>
-                    <Link to={'/'} className="absolute bottom-5 left-5 text-white flex gap-3 items-center text-xl font-semibold">
-                        <FontAwesomeIcon icon={faAnglesLeft} />
-                        <span>Back To Site 🌐</span>
-                    </Link>
+                    <div className="absolute bottom-8 w-full px-3 items- flex flex-col gap-5">
+                        <Link to={'/admin/profile'} className="bg-white p-3 rounded-md w-full font-semibold">📋 Go To Profile</Link>
+                        <Link to={'/'} className="text-white flex gap-3 items-center text-xl font-semibold">
+                            <FontAwesomeIcon icon={faAnglesLeft} />
+                            <span>Back To Site 🌐</span>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
