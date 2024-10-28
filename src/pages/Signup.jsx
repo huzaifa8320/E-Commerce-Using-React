@@ -1,12 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from "firebase/auth";
-import { auth, db } from "../utils/firebase";
-import { UserContext } from "../context/UserContext";
+import { auth } from "../utils/firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation, faEye, faEyeSlash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import googleLogo from '../assets/google_logo.png';
-import { setDoc, doc, getDoc } from "firebase/firestore";
 
 
 function Login() {
@@ -39,13 +37,6 @@ function Login() {
             .then(async (userCredential) => {
                 // Signed up 
                 const user = userCredential.user;
-
-                await setDoc(doc(db, "User Data", user.uid), {
-                    id: user.uid,
-                    username: `${name.slice(0, 1).toLocaleUpperCase()}${name.slice(1)}`,
-                    email_user: email,
-                });
-
 
                 // ...
             })
@@ -80,12 +71,6 @@ function Login() {
                 const token = credential.accessToken;
                 const user = result.user;
 
-                const data = doc(db, 'User Data', user.uid);
-               await  setDoc(data, {
-                    id: user.uid,
-                    email_user: user.email,
-                }, { merge: true });
-
             }).catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
@@ -99,7 +84,7 @@ function Login() {
     }
 
     return (
-        <div className="flex justify-center sm:items-center overflow-auto h-screen bg-gradient-to-r from-[#6c28d9d2] to-[#6D28D9]">
+        <div className="flex justify-center overflow-auto h-screen bg-gradient-to-r from-[#6c28d9d2] to-[#6D28D9]">
             {/* Changes alert Error  */}
             {error_Alert_Text &&
                 <div className="z-10 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
@@ -109,10 +94,10 @@ function Login() {
                 </div>
 
             }
-            <div className="w-[420px]  rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[550px] max-[400px]:h-screen px-8">
+            <div className="w-[420px] m-auto flex flex-col justify-center rounded-2xl bg-white max-[400px]:bg-[#6D28D9] max-[400px]:text-white max-[400px]:rounded-none shadown_default_login h-[550px] max-[400px]:h-screen px-8">
                 <div className="flex relative">
-                    <Link to={"/"} className="text-3xl absolute borde text-center font-semibold my-6"><FontAwesomeIcon icon={faXmark} className="text-xl" /></Link>
-                    <h1 className="text-3xl text-center font-bold mt-6 mb-3 mx-auto">Sign up</h1>
+                    <Link to={"/"} className="text-3xl absolute borde text-center font-semibold"><FontAwesomeIcon icon={faXmark} className="text-xl" /></Link>
+                    <h1 className="text-3xl text-center font-bold mb-3 mx-auto">Sign up</h1>
                 </div>
                 <form>
                     {/* Username  */}

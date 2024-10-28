@@ -94,6 +94,7 @@ function Admin() {
             if (!snapshot.empty) {
                 const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setAll_Products(products)
+                
                 setProduct_Loading(false)
             } else {
                 setAll_Products(null)
@@ -387,9 +388,9 @@ function Admin() {
                             <div className="flex py-5 justify-center mx-3 mt-3 mb-10 flex-wrap gap-10">
                                 {all_products ?
                                     all_products.map((item) => (
-                                        <div key={item.id} item={item} className="shadow-md rounded-md  cursor-pointer duration-150 w-52">
-                                            <div className="w-full h-52 flex">
-                                                <Image src={item.image} className="object-cover rounded-t-md bg-center min-w-full min-h-full" />
+                                        <div key={item.id} className="shadow-md rounded-md  cursor-pointer duration-150 w-52">
+                                            <div className="w-full h-52">
+                                                <Image src={item.image} style={{height:'208px', width: '208px'}} className="object-cover rounded-t-md" />
                                             </div>
                                             <div className="m-3 flex flex-col gap-2 relative">
 
@@ -429,7 +430,7 @@ function Admin() {
                                             <div className=" flex flex-col gap-2 relative border- h-full justify-between">
                                                 <button className={`border ${order.status == 'Pending' && 'bg-[#FEDA9E] text-[#BE9049] border-[#BE9049]'} ${order.status == 'Success' && 'bg-[#C5F3D7] border-green-400 text-green-600'} font-medium p-1 rounded-md text-[15px] absolute right-0 top-0`}>{order.status}</button>
                                                 <p className="text-[18px] font-semibold">Name: {order.name.length > 10 ? order.name.slice(0, 1).toUpperCase() + order.name.slice(1, 9) + '...' : order.name.slice(0, 1).toUpperCase() + order.name.slice(1)}</p>
-                                                <p className="font-medium text-lg">{order.email}</p>
+                                                <p className="font-medium text-sm break-words">Email: {order.email.length > 21 ? order.email.slice(0,21) + '...' : order.email}</p>
                                                 <p>Total Amount: ${order.totalAmount}</p>
                                                 <p>Total Item: {order.item.length}</p>
                                                 <button onClick={() => viewOrder(order)} className="bg-[#214162] w-32 mx-auto p-2 text-white rounded-md">View Order 📦</button>
@@ -445,7 +446,7 @@ function Admin() {
 
                 {/* Pop Up View Order  */}
                 {view_order &&
-                    <div className="bg-[#00000058] flex fixed top-0 left-0 w-full h-screen">
+                    <div className="bg-[#00000058] z-10 flex fixed top-0 left-0 w-full h-screen">
                         <div className="bg-[#14273A] flex flex-col shadow-lg sm:rounded-md text-white m-auto sm:w-[700px] relative h-screen w-full sm:h-[550px]">
                             <div className="flex items-center">
                                 <p className="text-3xl font-medium m-5">Items 📦</p>
@@ -468,7 +469,11 @@ function Admin() {
                                 }
                             </div>
                             <div className="bg-[#14273A] my-3 mx-4 shadow-md">
-                                <p className="m-3 break-words">Address : {view_order.address}</p>
+                                <div className="h-24 overflow-auto scrollable-div mb-3 text-gray-200">
+                                <p className="m-1 break-words">Name : {view_order.name.slice(0,1).toUpperCase() + view_order.name.slice(1)}</p>
+                                <p className="m-1 break-words">Email : {view_order.email}</p>
+                                <p className="m-1 break-words">Address : {view_order.address}</p>
+                                </div>
                                 <div className="flex justify-center">
                                     <div className="rounded-full relative w-full px-5 bg-white p-1 text-[#14273A] font-semibold">
                                         <p className="text-xs my-2 sm:text-[16px]">Total Items: {view_order.item.length}</p>

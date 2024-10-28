@@ -6,22 +6,21 @@ import { doc, onSnapshot } from "firebase/firestore";
 export const UserContext = createContext()
 
 function UserContextProvider({ children }) {
+  const [updateTrigger, setUpdateTrigger] = useState(false); // New state to trigger useEffect
+
   const [user, setUser] = useState({
     isLogin: false,
     userInfo: {}
   })
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+    const unsubscribe = onAuthStateChanged(auth, (user_real) => {
+      if (user_real) {
 
-        const unsub = onSnapshot(doc(db, "User Data", user.uid), (doc) => {
-          setUser({
-            isLogin: true,
-            userInfo: doc.data()
-          });
+        setUser({
+          isLogin: true,
+          userInfo: user_real
         });
-
 
       }
       else {
@@ -34,11 +33,11 @@ function UserContextProvider({ children }) {
 
     // Clean up the subscription when the component unmounts
     return () => unsubscribe();
-  }, []);
+  }, [updateTrigger ,auth]);
 
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser , updateTrigger , setUpdateTrigger}}>
       {children}
     </UserContext.Provider>
   )

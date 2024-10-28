@@ -32,10 +32,10 @@ function MyOrders() {
 
     // My Orders 
     useEffect(() => {
-        if (user && user.userInfo && user.userInfo.id) {
+        if (user && user.userInfo && user.userInfo.uid) {
             const q = query(
                 collection(db, 'Orders'),
-                where('order_user', '==', user.userInfo.id)
+                where('order_user', '==', user.userInfo.uid)
             );
 
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -46,10 +46,7 @@ function MyOrders() {
                     }));
                     setMy_Orders(ordersData);
                     setDataLoading(false)
-                    console.log('Data');
-
                 } else {
-                    console.log('No Data');
                     setDataLoading(false)
                     setMy_Orders([]);
                 }

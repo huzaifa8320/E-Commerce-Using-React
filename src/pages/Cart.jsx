@@ -67,12 +67,15 @@ function Cart() {
             console.error('Error adding document: ', error);
          }
       }
-
+      
       setTimeout(() => {
          setError_Alert_Text('')
          setText_Success_Alert('')
       }, 3000);
    }
+   // Place Order end
+
+
    const closeAlert = () => {
       setError_Alert_Text('')
       setText_Success_Alert('')
@@ -85,13 +88,25 @@ function Cart() {
       setShowPop(false)
    }
 
-   // Place Order end
+
+   const redirect_to_login = ()=>{
+      setError_Alert_Text('Please Login First')
+      setTimeout(() => {
+         navigate('/login')
+      }, 2000);
+   }
 
    return (
       <div className="sm:mx-10 m-4">
+         {user.isLogin ?
          <Link to={'/my_orders'} className="fixed bottom-0 text-xl font-semibold bg-[#6D28D9] text-white p-2 rounded-lg flex justify-center items-center right-0 m-1 z-10">
             Orders 📦
          </Link>
+         :
+         <button onClick={redirect_to_login} className="fixed bottom-0 text-xl font-semibold bg-[#6D28D9] text-white p-2 rounded-lg flex justify-center items-center right-0 m-1 z-10">
+            Orders 📦
+         </button>
+}
          {/* Alert Error  */}
          {error_Alert_Text &&
             <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
@@ -140,7 +155,7 @@ function Cart() {
                <h1 className="font-semibold">Total Price: ${Math.floor(total_Ammount)}</h1>
                <h1 className="font-semibold">Total Quantity: {total_Quantities}</h1>
             </div>
-            <button className="ms-auto bg-[#6D28D9] p-3 rounded-lg text-white font-semibold" onClick={() => setShowPop(true)}>Place Order</button>
+            <button className="ms-auto bg-[#6D28D9] p-3 rounded-lg text-white font-semibold" onClick={user?.isLogin ?() => setShowPop(true) :  redirect_to_login}>Place Order</button>:
          </div>}
          {cartItems.length > 0 ?
             cartItems.map((data) =>

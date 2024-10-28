@@ -1,179 +1,188 @@
+import { updateProfile, onAuthStateChanged } from "firebase/auth";
 import { useContext, useEffect, useRef, useState } from "react";
-import { UserContext } from "../context/UserContext";
-import { doc, setDoc, onSnapshot } from "firebase/firestore";
-import { auth, db } from "../utils/firebase";
-import { getStorage, ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import defaultProfile from "../assets/defaultProfile.png";
-import { useNavigate } from "react-router";
-import { faCircleCheck, faPen, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { auth, storage } from "../utils/firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { faAnglesLeft, faCircleCheck, faCircleExclamation, faPen, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { Image } from "antd";
+import { Link } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 function Profile() {
-    const { user, setUser } = useContext(UserContext);
-    const [details, setDetails] = useState();
-    const [loading, setLoading] = useState(true);
-    const [percentUpload, setPercentUpload] = useState();
-    const [username_update, setUsername_update] = useState();
-    const [read, setRead] = useState(true);
-    const [isVisible_Alert, setIsVisible_Alert] = useState(false);
-    const inputRef = useRef(null);
-    const navigate = useNavigate();
-    const storage = getStorage();
+    const [user_data, setUser_Data] = useState(null);
+    const { updateTrigger, setUpdateTrigger } = useContext(UserContext)
+    const [error_Alert_Text, setError_Alert_Text] = useState("")
+    const [text_success_alert, setText_Success_Alert] = useState("")
 
+    const [read, setRead] = useState(true);
+    const inputRef = useRef(null);
+    const [username, setUsername] = useState("");
+    // const [updateTrigger, setUpdateTrigger] = useState(false); // New state to trigger useEffect
+    const [previewImage, setPreviewImage] = useState(null); // Added state for image preview
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
             if (user_real) {
-                console.log("User Is Login");
-                console.log(user_real);
-                
-            }
-            else {
-
-                navigate("/");
+                setUser_Data(user_real);
+                setUsername(user_real.displayName || "");
             }
         });
         return () => unsubscribe();
-    }, [navigate]);
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (user.isLogin) {
-                setDetails(user.userInfo);
-                setUsername_update(user?.userInfo?.username)
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [user]);
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        const storageRef = ref(storage, `images/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setPercentUpload(`${progress}`);
-            },
-            (error) => {
-                console.log(error);
-            },
-            () => {
-                getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                    const data = doc(db, 'User Data', user.userInfo.id);
-                    await setDoc(data, {
-                        img_user: downloadURL
-                    }, { merge: true });
-                    setIsVisible_Alert(true)
-                    setTimeout(() => {
-                        setIsVisible_Alert(false)
-                    }, 3000);
-                });
-            }
-        );
-    };
-
-    const save_changes = async () => {
-        const data = doc(db, 'User Data', user.userInfo.id);
-        await setDoc(data, {
-            username: username_update
-        }, { merge: true });
-        setIsVisible_Alert(true)
-        setTimeout(() => {
-            setIsVisible_Alert(false)
-        }, 3000);
-    };
-
-    const reverse_changes = () => {
-        setUsername_update(details.username);
-        setRead(true);
-    };
-
+    }, [updateTrigger]); // Add updateTrigger as a dependency
 
     const handleEditClick = () => {
         setRead(false);
         inputRef.current.focus();
     };
 
-    // Sign Out 
-    const signOut_handle = () => {
-        signOut(auth).then(() => {
-            console.log("Sign-out successful.");
-
-
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
-    // Close Changes alert 
-    const closeAlert = () => {
-        setIsVisible_Alert(false);
+    const handleSaveClick = () => {
+        updateProfile(auth.currentUser, {
+            displayName: username,
+        })
+            .then(() => {
+                setUpdateTrigger(!updateTrigger); // Toggle updateTrigger to rerun useEffect
+                setText_Success_Alert('Username Update Successfully ✅')
+            })
+            .catch((error) => {
+                console.error(error);
+                setError_Alert_Text('Something went Wrong 😓')
+            });
+            setTimeout(() => {
+                setError_Alert_Text('')
+                setText_Success_Alert('')
+             }, 3000);
+        setRead(true);
     };
 
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            setPreviewImage(imageUrl);
 
+            const storageRef = ref(storage, `images/${file.name}`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+
+            uploadTask.on(
+                "state_changed",
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                    console.log("Upload is " + progress + "% done");
+                },
+                (error) => {
+                    console.error("Upload failed:", error);
+                },
+                async () => {
+                    const url = await getDownloadURL(uploadTask.snapshot.ref);
+                    console.log("File available at", url);
+                    setUploadProgress(0);
+
+
+
+                    updateProfile(auth.currentUser, {
+                        photoURL: url
+                    })
+                        .then(() => {
+                            setUpdateTrigger(!updateTrigger);
+                            setText_Success_Alert('Image Changed Successfully ✅')
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                            setError_Alert_Text('Something went Wrong 😓')
+                        });
+                        setTimeout(() => {
+                            setError_Alert_Text('')
+                            setText_Success_Alert('')
+                         }, 3000);
+                }
+            );
+        }
+    };
+
+    // Close Alert 
+    const closeAlert = () => {
+        setError_Alert_Text('')
+        setText_Success_Alert('')
+    }
 
     return (
+        <div className="bg-[#6D28D9] h-screen w-full relative flex justify-center items-center">
+            {/* Alert Error  */}
+            {error_Alert_Text &&
+                <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
+                    <span className="text-[#DA7F0B]"><FontAwesomeIcon icon={faCircleExclamation} /></span>
+                    <span className="px-3 msg text-[#BE9049] font-semibold">{error_Alert_Text}</span>
+                    <span onClick={closeAlert} className="text-[#DA7F0B]"><FontAwesomeIcon icon={faXmark} /></span>
+                </div>
 
-        <div>
-            {
-                loading ?
-                    <div className="bg-[#6D28D9] w-full h-screen fixed top-0 left-0 flex justify-center items-center">
-                        <div className="loader"></div>
-                    </div>
-                    :
-                    <div className="bg-[#6D28D9] h-screen flex justify-center items-center">
-
-                        {/* Changes alert  */}
-                        {isVisible_Alert &&
-                            <div className="z-10 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#C5F3D7] border-l-8 border-green-400 show fixed right-3 top-5">
-                                <span className="text-green-600"><FontAwesomeIcon icon={faCircleCheck} /></span>
-                                <span className="px-3 msg text-green-600 font-semibold">Changes made Successfully</span>
-                                <span onClick={closeAlert} className="text-green-600"><FontAwesomeIcon icon={faXmark} /></span>
-                            </div>
-
-                        }
-
-                        <div className="bg-white max-[400px]:bg-[#6D28D9] max-[400px]:pt-4 max-[400px]:w-full max-[400px]:h-screen max-[400px]:rounded-none max-[400px]:text-white  px-3 rounded-2xl h-[450px] w-80 shadow_default_Profile">
-                            <div className="relative flex justify-center items-center">
-                                <button className="absolute top-3 text-xl left-2" onClick={() => navigate("/")}><FontAwesomeIcon icon={faXmark} /></button>
-                                <img
-                                    src={details?.img_user ? details?.img_user : defaultProfile}
-                                    alt=""
-                                    className={`shadow_default_Profile bg-[#6D28D9] max-[400px]:bg-white ${percentUpload >= 0 && percentUpload < 100 ? 'image-dark' : 'image-bright'} cursor-pointer h-32 my-5 w-32 rounded-full mx-auto object-contain`}
-                                    onClick={() => document.getElementById('fileInput').click()}
-                                />
-                                <p className={`text-white font-bold absolute ${percentUpload > 99 ? "hidden" : "block"}`}>{percentUpload ? `${percentUpload.slice(0, 3)}%` : ""}</p>
-                            </div>
-                            <input accept="image/*" type="file" className="hidden" id="fileInput" onChange={handleFileChange} />
-                            <p className="flex font-semibold my-3">
-                                Name: <input type="text" readOnly={read} ref={inputRef} onChange={(e) => setUsername_update(e.target.value)} value={username_update} placeholder="Add Username" className={`w-full max-[400px]:bg-[#6D28D9] ms-3 outline-none  ${read ? "cursor-default" : "cursor-text"}`} />
-                                <button><FontAwesomeIcon icon={faPen} className="px-2" onClick={handleEditClick} /></button>
-                            </p>
-                            <p className="flex font-semibold">Email:
-                                <input type="email" readOnly defaultValue={details?.email_user?.length > 23 ? `${details?.email_user?.slice(0, 23)}...` : `${details?.email_user}`} className="max-[400px]:bg-[#6D28D9] w-full ms-4 outline-none" placeholder="Add Email" />
-                            </p>
-                            {username_update != details?.username ? (
-                                <div className="my-10 flex justify-center">
-
-                                    <button className="bg-[#6D28D9] w-32 h-12 rounded-lg me-3 text-white font-semibold p-3 max-[400px]:bg-white max-[400px]:text-[#6D28D9]" onClick={save_changes}>Save Changes</button>
-                                    <button className="bg-[#6D28D9] w-32 h-12 rounded-lg text-white font-semibold p-3 max-[400px]:bg-white max-[400px]:text-[#6D28D9]" onClick={reverse_changes}>Cancel</button>
-                                </div>
-                            ) : ""}
-                            <div className="flex justify-center items-center mt-10">
-                                <button onClick={signOut_handle}
-                                    className="max-[400px]:bg-white max-[400px]:text-[#6D28D9] mx-auto bg-[#6D28D9] w-32 h-12 rounded-lg text-white font-semibold p-3 hover:bg-[#5b22b3] transition-colors duration-300">
-                                    Sign Out
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
             }
+
+            {/* Changes alert  */}
+            {text_success_alert &&
+                <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#C5F3D7] border-l-8 border-green-400 show fixed right-3 top-5">
+                    <span className="text-green-600"><FontAwesomeIcon icon={faCircleCheck} /></span>
+                    <span className="px-3 msg text-green-600 font-semibold">{text_success_alert}</span>
+                    <span onClick={closeAlert} className="text-green-600"><FontAwesomeIcon icon={faXmark} /></span>
+                </div>
+
+            }
+            <Link to={'/'} className="absolute z-10 top-0 left-0 sm:text-white m-5 text-2xl"><FontAwesomeIcon icon={faAnglesLeft} /></Link>
+            <div className="bg-white h-screen w-full sm:w-[350px] sm:h-[450px] sm:rounded-md flex flex-col items-center p-4">
+                <div className="w-full mt-3 flex justify-center relative items-center">
+                    {previewImage || user_data?.photoURL ? (
+                        <Image
+                            src={previewImage || user_data.photoURL}
+                            alt="Admin"
+                            style={{ width: '176px', height: '176px' }}
+                            className="object-cover shadow rounded-full"
+                        />
+                    ) : (
+                        <div className="rounded-full border justify-center w-44 h-44 relative items-center flex">
+                            <FontAwesomeIcon icon={faUser} className="text-gray-400 cursor-pointer text-6xl" />
+                        </div>
+                    )}
+                    <div className="absolute top-0 right-2 w-5 flex cursor-pointer">
+                        <input
+                            type="file"
+                            className="w-full cursor-pointer absolute inset-0 opacity-0 h-full"
+                            onChange={handleImageChange}
+                        />
+                        <button className="cursor-pointer">
+                            <FontAwesomeIcon icon={faPen} />
+                        </button>
+                    </div>
+                </div>
+                <div className="mt-5 font-semibold w-full flex items-center">
+                    <label className="mr-2">Name:</label>
+                    <input
+                        onChange={(e) => setUsername(e.target.value)}
+                        ref={inputRef}
+                        type="text"
+                        readOnly={read}
+                        className="outline-none flex-grow border-b border-gray-300"
+                        value={username}
+                    />
+                    <FontAwesomeIcon className="cursor-pointer ml-2" onClick={handleEditClick} icon={faPen} />
+                </div>
+                <div className="mt-2 font-semibold w-full">Email: {user_data?.email}</div>
+                {uploadProgress > 0 && (
+                    <div className="my-5">
+                        <p>Upload Progress: {Math.round(uploadProgress)}%</p>
+                        <progress value={uploadProgress} max="100" />
+                    </div>
+                )}
+                {username !== user_data?.displayName && (
+                    <button
+                        onClick={handleSaveClick}
+                        className="mt-4 px-4 py-2 bg-[#6D28D9] text-white rounded-md"
+                    >
+                        Save
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

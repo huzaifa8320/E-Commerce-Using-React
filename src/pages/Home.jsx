@@ -61,7 +61,6 @@ function Home() {
             }
             else if (!user_real) {
                 setUserLoading(false)
-                localStorage.removeItem('cartItems')
             }
         });
         return () => unsubscribe();
@@ -158,20 +157,19 @@ function Home() {
                                 {menuOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
                             </button>
 
-                            <div className="relative flex items-center md:hidden">
-                                {
-                                    user.isLogin &&
+                            <div className={`relative ${user.isLogin == false && 'gap-3'} flex items-center md:hidden`}>
+                                
                                     <div className="relative">
                                         {cartItems.length ?
                                             <div className="absolute -top-2 -right-2 bg-red-700 text-white h-4 w-4 rounded-full text-center font-semibold text-xs">{cartItems.length}</div> : ''
                                         }
                                         <Link to={'/cart'}><FontAwesomeIcon icon={faCartPlus} className="cursor-pointer text-3xl text-white" /></Link>
                                     </div>
-                                }
+                                
                                 {
                                     user.isLogin ?
                                         <div>
-                                            <img onClick={openProfileDetails} src={user?.userInfo?.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-4 me-2 border-2 shadown_default cursor-pointer" />
+                                            <img onClick={openProfileDetails} src={user?.userInfo?.photoURL ? user.userInfo.photoURL : defaultProfile} alt="" className="h-14 object-cover w-14 rounded-full ms-4 me-2 border-2 shadown_default cursor-pointer" />
                                             {signOpen && (
                                                 <div className="absolute top-20 right-3 w-[150px] ">
                                                     <div className="bg-white shadow-2xl rounded-md text-[#6D28D9] font-semibold cursor-pointer border-2 ">
@@ -185,7 +183,7 @@ function Home() {
                                             }
                                         </div> :
 
-                                        <Link to="/Login"
+                                        <Link to="/login"
                                             className="mx-auto my-2 md:mx-0 h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">Login</Link>
                                 }
                             </div>
@@ -206,20 +204,17 @@ function Home() {
                                 >
                                     <Select value={chooseCategory} style={{ width: '100%' }} options={arr_category} onChange={handle_cat_Change} />
                                 </button>
-                                <div className="relative flex items-center">
-                                    {
-                                        user.isLogin &&
+                                <div className={`relative ${user.isLogin == false && 'gap-3'} flex items-center`}>
                                         <div className="relative">
                                             {cartItems.length ?
                                                 <div className="absolute -top-2 right-1 bg-red-700 text-white h-4 w-4 rounded-full text-center font-semibold text-xs">{cartItems.length}</div> : ''
                                             }
                                             <Link to={'/cart'}><FontAwesomeIcon icon={faCartPlus} className="cursor-pointer mx-3 text-3xl text-white" /></Link>
                                         </div>
-                                    }
                                     {
                                         user.isLogin ?
                                             <div>
-                                                <img onClick={openProfileDetails} src={user?.userInfo?.img_user ? user.userInfo.img_user : defaultProfile} alt="" className="h-14 w-14 rounded-full ms-6 me-5 border-2 shadown_default hover:scale-110 cursor-pointer duration-300" />
+                                                <img onClick={openProfileDetails} src={user?.userInfo?.photoURL ? user.userInfo.photoURL : defaultProfile} alt="" className="h-14 object-cover w-14 rounded-full ms-6 me-5 border-2 shadown_default hover:scale-110 cursor-pointer duration-300" />
                                                 {signOpen && (
                                                     <div className="absolute top-20 right-3 w-[150px] ">
                                                         <div className="bg-white shadow-2xl rounded-md text-[#6D28D9] font-semibold cursor-pointer border-2 ">
@@ -233,7 +228,7 @@ function Home() {
                                                 }
                                             </div> :
 
-                                            <Link to="/Login"
+                                            <Link to="/login"
                                                 className="mx-auto my-4 md:mx-0 h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">Login</Link>
                                     }
                                 </div>

@@ -19,7 +19,6 @@ function AdminProfile() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
             if (user_real) {
-                console.log(user_real);
                 setAdmin_Data(user_real);
                 setUsername(user_real.displayName || "");
             }
@@ -88,9 +87,9 @@ function AdminProfile() {
 
     return (
         <div className="bg-[#214162] h-screen w-full relative flex justify-center items-center">
-            <Link to={'/admin/orders'} className="absolute top-0 left-0 text-white m-5 text-2xl"><FontAwesomeIcon icon={faAnglesLeft} /></Link>
-            <div className="bg-white w-[350px] h-[450px] rounded-md flex flex-col items-center p-4">
-                <div className="w-full flex justify-center relative items-center">
+            <Link to={'/admin/orders'} className="absolute z-10 top-0 left-0 sm:text-white m-5 text-2xl"><FontAwesomeIcon icon={faAnglesLeft} /></Link>
+            <div className="bg-white h-screen w-full sm:w-[350px] sm:h-[450px] sm:rounded-md flex flex-col items-center p-4">
+                <div className="w-full mt-3 flex justify-center relative items-center">
                     {previewImage || admin_data?.photoURL ? (
                         <Image
                             src={previewImage || admin_data.photoURL}
@@ -136,7 +135,7 @@ function AdminProfile() {
                 {username !== admin_data?.displayName && (
                     <button
                         onClick={handleSaveClick}
-                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+                        className="mt-4 px-4 py-2 bg-[#214162] text-white rounded-md"
                     >
                         Save
                     </button>
