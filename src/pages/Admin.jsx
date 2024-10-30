@@ -154,8 +154,12 @@ function Admin() {
     }, [item]);
 
     useEffect(() => {
+        console.log('h');
+        
         setFilter_Orders(all_Orders);
-        // setOrder_Loading(false)
+        console.log(filter);
+        
+        handle_filter_Change(filter)
     }, [all_Orders]);
 
 
@@ -438,7 +442,7 @@ function Admin() {
                                         </div>
                                     ))
 
-                                    : <p>No Order ☹</p>}
+                                    : <p>No {(filter === 'Pending' || filter === 'Success') && filter} Order 😍</p>}
                             </div>
                         }
                     </div>
@@ -537,7 +541,6 @@ function Admin() {
                         </div>
                     </div>
                 }
-                {/* {item && item} */}
             </div>
         </div>
     )
