@@ -153,12 +153,8 @@ function Admin() {
         return () => unsubscribe();
     }, [item]);
 
-    useEffect(() => {
-        console.log('h');
-        
-        setFilter_Orders(all_Orders);
-        console.log(filter);
-        
+    useEffect(() => {        
+        setFilter_Orders(all_Orders);        
         handle_filter_Change(filter)
     }, [all_Orders]);
 
@@ -402,7 +398,7 @@ function Admin() {
                                                 <p className="font-medium text-lg">{item.title.length > 20 ? item.title.slice(0, 1).toUpperCase() + item.title.slice(1, 19) + '...' : item.title}</p>
                                                 <p className="h-14">{item.discription.length > 43 ? item.discription.slice(0, 43) + '...' : item.discription}</p>
                                                 <p>${item.price}</p>
-                                                <button className="absolute right-0 bottom-0">
+                                                <div className="absolute right-0 bottom-0">
                                                     <FontAwesomeIcon icon={faEllipsis} onClick={() => handleMenuToggle(item.id)} />
                                                     {show_menu === item.id &&
                                                         <div className="absolute h-[70px] z-50 w-[86px] flex flex-col justify-evenly right-full  shadow bg-[#214162] text-white font-medium rounded-md">
@@ -410,7 +406,7 @@ function Admin() {
                                                             <button className="hover:bg-white hover:text-[#214162] mx-1">Edit</button>
                                                         </div>
                                                     }
-                                                </button>
+                                                </div>
                                             </div>
                                         </div>
                                     ))

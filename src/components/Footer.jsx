@@ -41,7 +41,7 @@ function Footer() {
                     </div>
 
                 </div>
-                <div className="text-white font-semibold flex flex-col gap-3 mt-10 sm:mt-0 mx-auto">
+                <div className="text-white font-semibold flex flex-col gap-3 mt-10 sm:mt-0">
                     <p className="text-2xl">Links</p>
                     <Link to={'/cart'}>
                         <p>Cart 🚚</p>
