@@ -1,12 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../context/CartContext";
-import { faAnglesLeft, faCircleCheck, faCircleExclamation, faL, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faAnglesLeft, faCaretRight, faCircleCheck, faCircleExclamation, faL, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UserContext } from "../context/UserContext";
 import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons/faSpinner";
 
 function Cart() {
    const { cartItems, setCartItems, removeItem, addItem, item_minus } = useContext(CartContext)
@@ -19,10 +20,12 @@ function Cart() {
    const [error_Alert_Text, setError_Alert_Text] = useState("")
    const [text_success_alert, setText_Success_Alert] = useState("")
    const { user, setUser } = useContext(UserContext)
+const [save_Order , setSave_Order] = useState(false)
+
    const navigate = useNavigate()
    useEffect(() => {
-      if (user?.userInfo?.email_user) {
-         setDetails_Email(user.userInfo.email_user);
+      if (user?.userInfo?.email) {
+         setDetails_Email(user.userInfo.email);
       }
    }, [user]);
 
@@ -31,7 +34,7 @@ function Cart() {
       if (!details_Name) {
          setError_Alert_Text('Please Enter Name')
       }
-      else if (!user?.userInfo?.email_user) {
+      else if (!user?.userInfo?.email) {
          setError_Alert_Text('Please Enter Email')
       }
       else if (!details_Address) {
@@ -47,24 +50,27 @@ function Cart() {
             createdAt: serverTimestamp(),
             item: cartItems,
             totalAmount: total_Ammount,
-            order_user: user.userInfo.id,
+            order_user: user.userInfo.uid,
             status: 'Pending'
          };
 
          try {
+            setSave_Order(true)
             // Create a reference to the 'orders' collection
             const ordersCollectionRef = collection(db, "Orders");
-
+            
             // Add the cart details as a new document in the collection
             await addDoc(ordersCollectionRef, cartDetails);
-
+            
             setText_Success_Alert('Order Created Successfully ✅');
             localStorage.removeItem('cartItems');
+            setSave_Order(false)
             setShowPop(false);
             setCartItems([]);
             navigate('/my_orders')
          } catch (error) {
             console.error('Error adding document: ', error);
+            setSave_Order(false)
          }
       }
       
@@ -139,10 +145,10 @@ function Cart() {
                      <input onChange={(e) => setDetails_Name(e.target.value)} type="text" autoComplete="name" placeholder="Name" className="text-[#00000095] bg-transparent outline-none font-semibold  w-full placeholder:text-[#00000095]" />
                   </div>
                   <div className="bg-[#F3F1F5] my-5 rounded-lg h-10 ps-3 flex items-center">
-                     <input onChange={(e) => setDetails_Email(e.target.value)} defaultValue={user?.userInfo?.email_user || ''} type="email" autoComplete="email" placeholder="Email" className="text-[#00000095] bg-transparent outline-none font-semibold  w-full placeholder:text-[#00000095]" />
+                     <input onChange={(e) => setDetails_Email(e.target.value)} defaultValue={user?.userInfo?.email || ''} type="email" autoComplete="email" placeholder="Email" className="text-[#00000095] bg-transparent outline-none font-semibold  w-full placeholder:text-[#00000095]" />
                   </div>
                   <textarea onChange={(e) => setDetails_Address(e.target.value)} name="" id="" className="w-full h-52 p-3 outline-none placeholder:text-[#00000095] text-[#00000095] font-semibold" placeholder="Address"></textarea>
-                  <button onClick={send_details} className="bg-white text-[#6D28D9] font-semibold p-2 rounded-lg w-20 mx-auto block my-3">Save</button>
+                  <button onClick={send_details} className="bg-white text-[#6D28D9] font-semibold p-2 rounded-lg w-20 mx-auto block my-3">Save {save_Order ? <FontAwesomeIcon icon={faSpinner} spinPulse/> :<FontAwesomeIcon icon={faCaretRight}/>}</button>
                </div>
             </div>
          }
@@ -155,7 +161,7 @@ function Cart() {
                <h1 className="font-semibold">Total Price: ${Math.floor(total_Ammount)}</h1>
                <h1 className="font-semibold">Total Quantity: {total_Quantities}</h1>
             </div>
-            <button className="ms-auto bg-[#6D28D9] p-3 rounded-lg text-white font-semibold" onClick={user?.isLogin ?() => setShowPop(true) :  redirect_to_login}>Place Order</button>:
+            <button className="ms-auto bg-[#6D28D9] p-3 rounded-lg text-white font-semibold" onClick={user?.isLogin ?() => setShowPop(true) :  redirect_to_login}>Place Order</button>
          </div>}
          {cartItems.length > 0 ?
             cartItems.map((data) =>

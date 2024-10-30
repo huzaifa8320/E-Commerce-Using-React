@@ -11,6 +11,7 @@ import { CartContext } from "../context/CartContext";
 import { auth, db } from "../utils/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { Select } from "antd";
+import Footer from "../components/Footer";
 
 
 function Home() {
@@ -281,6 +282,7 @@ function Home() {
                     </div>
                 </div>
             }
+            <Footer/>
         </div >
     )
 }

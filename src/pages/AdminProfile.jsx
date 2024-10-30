@@ -2,10 +2,11 @@ import { updateProfile, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
 import { auth, storage } from "../utils/firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAnglesLeft, faPen, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faAnglesLeft, faCircleCheck, faCircleExclamation, faPen, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { Image } from "antd";
 import { Link } from "react-router-dom";
+
 
 function AdminProfile() {
     const [admin_data, setAdmin_Data] = useState(null);
@@ -15,6 +16,8 @@ function AdminProfile() {
     const [updateTrigger, setUpdateTrigger] = useState(false); // New state to trigger useEffect
     const [previewImage, setPreviewImage] = useState(null); // Added state for image preview
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [error_Alert_Text, setError_Alert_Text] = useState("")
+    const [text_success_alert, setText_Success_Alert] = useState("")
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user_real) => {
@@ -37,11 +40,17 @@ function AdminProfile() {
         })
             .then(() => {
                 setUpdateTrigger(!updateTrigger); // Toggle updateTrigger to rerun useEffect
+                setText_Success_Alert('Username Change Successfully ✅')
             })
             .catch((error) => {
                 console.error(error);
+                setError_Alert_Text('Something went wrong ⚠')
             });
         setRead(true);
+        setTimeout(() => {
+            setText_Success_Alert('')
+            setError_Alert_Text('')
+        }, 3000);
     };
 
     const handleImageChange = (event) => {
@@ -76,17 +85,49 @@ function AdminProfile() {
                     })
                         .then(() => {
                             setUpdateTrigger(!updateTrigger);
+                            setText_Success_Alert('Image Changed Successfully ✅')
                         })
                         .catch((error) => {
                             console.error(error);
+                            setError_Alert_Text('Something went Wrong 😓')
                         });
+                        setTimeout(() => {
+                            setError_Alert_Text('')
+                            setText_Success_Alert('')
+                         }, 3000);
                 }
             );
         }
     };
 
+     // Close Alert 
+     const closeAlert = () => {
+        setError_Alert_Text('')
+        setText_Success_Alert('')
+    }
+
+
     return (
         <div className="bg-[#214162] h-screen w-full relative flex justify-center items-center">
+            {/* Alert Error  */}
+            {error_Alert_Text &&
+                <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#FEDA9E] border-l-8 border-[#FEA601] show fixed right-3 top-5">
+                    <span className="text-[#DA7F0B]"><FontAwesomeIcon icon={faCircleExclamation} /></span>
+                    <span className="px-3 msg text-[#BE9049] font-semibold">{error_Alert_Text}</span>
+                    <span onClick={closeAlert} className="text-[#DA7F0B]"><FontAwesomeIcon icon={faXmark} /></span>
+                </div>
+
+            }
+
+            {/* Changes alert  */}
+            {text_success_alert &&
+                <div className="z-20 cursor-pointer alert shadow-2xl p-3 rounded-lg bg-[#C5F3D7] border-l-8 border-green-400 show fixed right-3 top-5">
+                    <span className="text-green-600"><FontAwesomeIcon icon={faCircleCheck} /></span>
+                    <span className="px-3 msg text-green-600 font-semibold">{text_success_alert}</span>
+                    <span onClick={closeAlert} className="text-green-600"><FontAwesomeIcon icon={faXmark} /></span>
+                </div>
+
+            }
             <Link to={'/admin/orders'} className="absolute z-10 top-0 left-0 sm:text-white m-5 text-2xl"><FontAwesomeIcon icon={faAnglesLeft} /></Link>
             <div className="bg-white h-screen w-full sm:w-[350px] sm:h-[450px] sm:rounded-md flex flex-col items-center p-4">
                 <div className="w-full mt-3 flex justify-center relative items-center">
