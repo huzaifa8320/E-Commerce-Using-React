@@ -14,7 +14,6 @@ function ProductDetails() {
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(null);
     const { cartItems, addItem, isItemAdded } = useContext(CartContext)
-    // const { all_products, setAll_Products } = useContext(DetailsContext)
     console.log(cartItems);
     console.log(product);
 
@@ -25,10 +24,8 @@ function ProductDetails() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                // Reference to the document with the specific id
                 const docRef = doc(db, "Products", id);
 
-                // Fetch the document
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -36,12 +33,10 @@ function ProductDetails() {
                         { id: docSnap.id, ...docSnap.data() }
                     );
                     setLoading(false);
-                    // Document was found, log or return the data
                     console.log("Document data:", docSnap.data());
                 } else {
                     setNotFound("Not Found 🚫");
                     setLoading(false);
-                    // Document not found
                     console.log("No such document with ID:", id);
                 }
             } catch (error) {
@@ -51,35 +46,8 @@ function ProductDetails() {
             }
         };
 
-        // Call the async function
         fetchProduct();
     }, [id]);
-    // Updated data 
-
-
-
-
-    // useEffect(() => {
-    //     setNotFound(false);
-    //     setLoading(true);
-
-    //     fetch(`https://dummyjson.com/products/${id}`)
-    //         .then((res) => {
-    //             if (!res.ok) {
-    //                 throw new Error('Product not found');
-    //             }
-    //             return res.json();
-    //         })
-    //         .then((data) => {
-    //             setProduct(data);
-    //             setLoading(false);
-    //         })
-    //         .catch((error) => {
-    //             setNotFound(true);
-    //             setLoading(false);
-    //             console.error('Error fetching product:', error);
-    //         });
-    // }, [id]);
 
     if (loading) {
 
@@ -107,7 +75,7 @@ function ProductDetails() {
                 </div>
 
                 <div className="h-[300px] flex justify-center w-full sm:w-1/2">
-                    <div className="p-4">
+                    <div className="p-4 w-full">
                         <h2 className="text-sm title-font text-gray-500 tracking-widest">
                             {product.category}
                         </h2>
@@ -162,8 +130,8 @@ function ProductDetails() {
                                 ${product.price}
                             </span>
 
-                            <button onClick={() => addItem(product)} className="flex my-10 ml-auto text-white bg-indigo-500 min-w-24 p-2 justify-center items-center focus:outline-none hover:bg-indigo-600 rounded">
-                                {isItemAdded(product.id) ? `Added ${isItemAdded(product.id).quantities}` : `Add to Cart`}
+                            <button onClick={() => addItem(product)} className="flex bounce_button my-10 ml-auto text-white bg-indigo-500 min-w-24 p-2 justify-center items-center focus:outline-none hover:bg-indigo-600 rounded">
+                                {isItemAdded(product.id) ? `Added ${isItemAdded(product.id).quantities} 🛒` : `Add to Cart 🛒`}
                             </button>
                         </div>
                     </div>

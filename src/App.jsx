@@ -11,8 +11,19 @@ import CartContextProvider from './context/CartContext'
 import Admin from './pages/Admin'
 import MyOrders from './pages/MyOrders'
 import AdminProfile from './pages/AdminProfile'
+import Aos from 'aos'
+import 'aos/dist/aos.css'; // Import AOS styles
+import { useEffect } from 'react'
 
 function App() {
+
+  useEffect(() => {
+    Aos.init({
+      duration: 700, // Animation duration in milliseconds
+      easing: 'ease-in-out', // Easing option
+      once: false, // Animation only happens once on scroll
+    });
+  }, []);
 
   return (
     <>

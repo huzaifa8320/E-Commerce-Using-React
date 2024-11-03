@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 function ProductCard( {item}) {
     return (
-        <Link to={`/productdetails/${item.id}`} className="mx-auto p-4 w-72 border hover:shadow-lg">
+        <Link to={`/productdetails/${item.id}`} data-aos="zoom-in" className="mx-auto p-4 w-72 border hover:shadow-lg">
         <div className="">
             <span className="h-48 rounded overflow-hidden flex justify-center">
                 <img

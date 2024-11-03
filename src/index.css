@@ -94,3 +94,73 @@
   background: #888; /* Color of the scrollbar thumb */
   border-radius: 10px; /* Rounded corners */
 }
+
+
+
+
+/* Cart button animation  */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.bounce_button {
+  animation: bounce 2s infinite;
+}
+
+
+
+/* Shiny button  */
+
+.shine-box {
+  overflow: hidden;
+}
+
+.shine-box:before {
+  position: absolute;
+  top: 0;
+  left: -500px;
+  content: "";
+  width: 120px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.6);
+  transform: skew(-50deg);
+  animation: shine 2.8s ease infinite;
+}
+
+
+@keyframes shine {
+  from {left: -500px;}
+  to {left: 655px;}
+}
+
+
+/* Shiny button  for login */
+.shine-box-log {
+  overflow: hidden;
+}
+
+.shine-box-log:before {
+  position: absolute;
+  top: 0;
+  left: -500px;
+  content: "";
+  width: 120px;
+  height: 500px;
+  background: #6c28d94f;
+  transform: skew(-50deg);
+  animation: shine-log 2.8s ease infinite;
+}
+
+
+@keyframes shine-log {
+  from {left: -500px;}
+  to {left: 655px;}
+}

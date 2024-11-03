@@ -143,7 +143,7 @@ function Home() {
                     <div className="loader"></div>
                 </div> :
                 <div>
-                    <nav className="bg-[#6D28D9] shadow-md px-3 lg:px-5 py-3 rounded-b w-full fixed">
+                    <nav className="bg-[#6D28D9] z-10 shadow-md px-3 lg:px-5 py-3 rounded-b w-full fixed">
                         <div className="flex items-center">
                             <a href="#" className="logo hidden md:flex items-center me-auto">
                                 <div className="h-16 w-16">
@@ -160,7 +160,7 @@ function Home() {
 
                             <div className={`relative ${user.isLogin == false && 'gap-3'} flex items-center md:hidden`}>
                                 
-                                    <div className="relative">
+                                    <div className={`relative ${cartItems.length > 0 && 'bounce_button'}`}>
                                         {cartItems.length ?
                                             <div className="absolute -top-2 -right-2 bg-red-700 text-white h-4 w-4 rounded-full text-center font-semibold text-xs">{cartItems.length}</div> : ''
                                         }
@@ -185,7 +185,7 @@ function Home() {
                                         </div> :
 
                                         <Link to="/login"
-                                            className="mx-auto my-2 md:mx-0 h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">Login</Link>
+                                            className="mx-auto shine-box-log relative  my-2 md:mx-0 h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">Login</Link>
                                 }
                             </div>
 
@@ -206,7 +206,7 @@ function Home() {
                                     <Select value={chooseCategory} style={{ width: '100%' }} options={arr_category} onChange={handle_cat_Change} />
                                 </button>
                                 <div className={`relative ${user.isLogin == false && 'gap-3'} flex items-center`}>
-                                        <div className="relative">
+                                        <div className={`relative ${cartItems.length > 0 && 'bounce_button'}`}>
                                             {cartItems.length ?
                                                 <div className="absolute -top-2 right-1 bg-red-700 text-white h-4 w-4 rounded-full text-center font-semibold text-xs">{cartItems.length}</div> : ''
                                             }
@@ -230,7 +230,7 @@ function Home() {
                                             </div> :
 
                                             <Link to="/login"
-                                                className="mx-auto my-4 md:mx-0 h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">Login</Link>
+                                                className="mx-auto shine-box-log relative my-4 md:mx-0 h-10 w-[100px] bg-white text-[#6D28D9] flex items-center justify-center font-semibold rounded-md">Login</Link>
                                     }
                                 </div>
                             </div>

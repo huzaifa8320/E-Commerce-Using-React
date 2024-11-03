@@ -14,8 +14,8 @@ function Footer() {
     };
     return (
         <div className="bg-[#6D28D9] pt-8 px-10 sm:px-16 w-full">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3">
-                <div className="text-white flex flex-col gap-5 mx-auto">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 px-5">
+                <div className="text-white flex flex-col gap-5">
                     <Link to={'/'} className="flex items-center me-auto min-w-40">
                         <div className="h-16 w-16">
                             <img src={logo} alt="logo" />
@@ -56,7 +56,7 @@ function Footer() {
                         <p>Only For Admin 👨🏻‍💻</p>
                     </Link>
                 </div>
-                <div className="text-white min-w-48 max-w-full font-semibold mt-10 md:mt-0 flex flex-col gap-3 mx-auto">
+                <div className="text-white min-w-48 max-w-full font-semibold mt-10 md:mt-0 flex flex-col gap-3">
                     <p className="text-2xl">Contact</p>
                     <Link className="max-w-72 break-words" to={'mailto:muhammadhuzaifa8320@gmail.com'}>
                         <p> muhammadhuzaifa8320@gmail.com</p>
